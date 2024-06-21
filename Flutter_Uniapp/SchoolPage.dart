@@ -1,100 +1,121 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:url_launcher/url_launcher.dart';
 
-class SchoolPage extends StatelessWidget {
+class SchoolPage extends StatefulWidget {
   const SchoolPage({super.key});
 
   @override
+  _SchoolPageState createState() => _SchoolPageState();
+}
+
+class _SchoolPageState extends State<SchoolPage> {
+  late Future<List<School>> futureSchools;
+
+  @override
+  void initState() {
+    super.initState();
+    futureSchools = fetchSchools();
+  }
+
+  Future<List<School>> fetchSchools() async {
+    final response = await http.get(Uri.parse('https://syfer001testing.000webhostapp.com/cloneapi/School_listdata.php'));
+
+    if (response.statusCode == 200) {
+      final parsed = jsonDecode(response.body)['data'].cast<Map<String, dynamic>>();
+      return parsed.map<School>((json) => School.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load schools');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    List<String> imagePaths = [
-      'assets/mit.jpeg',
-      'assets/icl.jpg',
-      'assets/uoc.jpeg',
-      'assets/hu.jpg',
-      'assets/uoc.jpeg',
-      'assets/su.jpeg',
-      'assets/eth.jpg',
-      'assets/nus.jpg',
-      'assets/ucl.jpg',
-      'assets/ciot.jpeg',
-    ];
-
-    List<String> titles = [
-      'Massachusetts Institute of Technology (MIT)',
-      'Imperial College London',
-      'University of Oxford',
-      'Harvard University',
-      'University of Cambridge',
-      'Stanford University',
-      'ETH Zurich (Swiss Federal Institute of Technology)',
-      'National University of Singapore (NUS)',
-      'University College London (UCL)',
-      'California Institute of Technology (Caltech)',
-    ];
-
-    List<String> subtitles = [
-      '77 Massachusetts Ave, Cambridge, MA 02139, United States',
-      'South Kensington, London SW7 2BU, United Kingdom',
-      'Oxford OX1 2JD, United Kingdom',
-      'Cambridge, MA 02138, United States',
-      'The Old Schools, Trinity Ln, Cambridge CB2 1TN, United Kingdom',
-      '450 Serra Mall, Stanford, CA 94305, United States',
-      'Rämistrasse 101, 8092 Zürich, Switzerland',
-      '21 Lower Kent Ridge Rd, Singapore 119077',
-      'Gower St, London WC1E 6BT, United Kingdom',
-      '1200 E California Blvd, Pasadena, CA 91125, United States',
-    ];
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text('School',style: TextStyle(color: Colors.white),),
+        title: const Text('School', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.black87,
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(
+            Icons.arrow_back_ios,
+            size: 20.0,
+            color: Colors.white,
+          ),
+        ),
       ),
-      body: ListView.builder(
-        itemCount: imagePaths.length,
-        itemBuilder: (context, index) {
-          return Card(
-            margin: const EdgeInsets.all(10),
-            child: ListTile(
-              contentPadding: const EdgeInsets.all(10),
-              leading: Image.asset(
-                imagePaths[index],
-                width: 50,
-                height: 50,
-                fit: BoxFit.cover,
-              ),
-              title: Text(titles[index]),
-              subtitle: Text(subtitles[index]),
-              trailing: const Icon(Icons.arrow_forward),
-              onTap: () {
-                launchWebsite(index);
+      body: FutureBuilder<List<School>>(
+        future: futureSchools,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('No schools found'));
+          } else {
+            final schools = snapshot.data!;
+            return ListView.builder(
+              itemCount: schools.length,
+              itemBuilder: (context, index) {
+                final school = schools[index];
+                return Card(
+                  margin: const EdgeInsets.all(10),
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.all(10),
+                    leading: Image.network(
+                      'https://syfer001testing.000webhostapp.com/cloneapi/${school.imagePath}',
+                      width: 50,
+                      height: 50,
+                      fit: BoxFit.cover,
+                    ),
+                    title: Text(school.title),
+                    subtitle: Text(school.subtitle),
+                    trailing: const Icon(Icons.arrow_forward),
+                    onTap: () {
+                      launchWebsite(school.website);
+                    },
+                  ),
+                );
               },
-            ),
-          );
+            );
+          }
         },
       ),
     );
   }
 
-  void launchWebsite(int index) async {
-    List<String> websites = [
-      'https://web.mit.edu',
-      'https://www.imperial.ac.uk',
-      'https://www.ox.ac.uk',
-      'https://www.harvard.edu',
-      'https://www.cam.ac.uk',
-      'https://www.stanford.edu',
-      'https://ethz.ch',
-      'https://www.nus.edu.sg',
-      'https://www.ucl.ac.uk',
-      'https://www.caltech.edu',
-    ];
-
-    String url = websites[index];
+  void launchWebsite(String url) async {
     if (await canLaunch(url)) {
       await launch(url);
     } else {
       throw 'Could not launch $url';
     }
+  }
+}
+
+class School {
+  final String imagePath;
+  final String title;
+  final String subtitle;
+  final String website;
+
+  School({
+    required this.imagePath,
+    required this.title,
+    required this.subtitle,
+    required this.website,
+  });
+
+  factory School.fromJson(Map<String, dynamic> json) {
+    return School(
+      imagePath: json['School_image_path'],
+      title: json['School_title'],
+      subtitle: json['School_subtitle'],
+      website: json['school_website'],
+    );
   }
 }
