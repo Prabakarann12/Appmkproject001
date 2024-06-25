@@ -2,25 +2,14 @@ import 'package:flutter/material.dart';
 import 'FindPageUni.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'Drawerpageuni.dart';
+import 'HomePageUni.dart';
+import 'TutorialsPage.dart';
 
-void main() {
-  runApp(const MainApp());
-}
-
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
-
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: SearchFilterPage(),
-    );
-  }
-}
 
 class SearchFilterPage extends StatefulWidget {
-  const SearchFilterPage({super.key});
+  final int userId;
+  const SearchFilterPage({super.key, required this.userId});
   @override
   _SearchFilterPageState createState() => _SearchFilterPageState();
 
@@ -29,6 +18,7 @@ class SearchFilterPage extends StatefulWidget {
 
 class _SearchFilterPageState extends State<SearchFilterPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  get userIdProfile => userIdProfile;
   int _selectedIndex = 0;
   bool _isCurrentLocationSelected = false;
   bool _isSearchLocationSelected = false;
@@ -56,13 +46,25 @@ class _SearchFilterPageState extends State<SearchFilterPage> {
       if (index == 4) { // Account button index
         _scaffoldKey.currentState?.openDrawer();
       }
+      else if (index == 2) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => VideoPlayerApp()),
+        );
+      }
       if (index == 1) {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => FindUniPage()),
+          MaterialPageRoute(builder: (context) => FindUniPage(userId: widget.userId)),
         );
       }
       if (index == 0) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => HomePageUni(userId: widget.userId)),
+        );
       }
     });
   }
@@ -269,7 +271,18 @@ class _SearchFilterPageState extends State<SearchFilterPage> {
       backgroundColor: Colors.white,
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
-        title: const Text('Search Filters'),
+        title: const Text('Search Filters', style: TextStyle(color: Colors.white),),
+        backgroundColor: Colors.black,
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(
+            Icons.arrow_back_ios,
+            size: 20.0,
+            color: Colors.white,
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -564,6 +577,9 @@ class _SearchFilterPageState extends State<SearchFilterPage> {
             label: 'Account',
           ),
         ],
+      ),
+      drawer: CustomDrawer(
+        userDataFuture: fetchUserData(widget.userId),
       ),
     );
   }
