@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:uniflutterprot01/TutorialsPage.dart';
 import 'dart:convert';
 import 'SearchPage.dart';
 import 'FindPageUni.dart';
@@ -9,12 +10,13 @@ import 'NetworkPage.dart';
 import 'ConsultantsPage.dart';
 import 'CollegePage.dart';
 import 'SchoolPage.dart';
+import 'AlumniPage.dart';
 
 
 class HomePageUni extends StatefulWidget {
   final int userId;
 
-  const HomePageUni({Key? key, required this.userId}) : super(key: key);
+  const HomePageUni({super.key, required this.userId});
 
   @override
   _HomePageUniState createState() => _HomePageUniState();
@@ -34,13 +36,19 @@ class _HomePageUniState extends State<HomePageUni> {
       } else if (index == 1) {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => FindUniPage()),
+          MaterialPageRoute(builder: (context) => FindUniPage(userId: widget.userId)),
         );
       } else if (index == 0) {
         Navigator.push(
           context,
           MaterialPageRoute(
               builder: (context) => HomePageUni(userId: widget.userId)),
+        );
+      }else if (index == 2) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => VideoPlayerApp()),
         );
       }
     });
@@ -49,22 +57,22 @@ class _HomePageUniState extends State<HomePageUni> {
     Widget page;
     switch (index) {
       case 0:
-        page = const NetworkPage();
+        page =  NetworkPage();
         break;
       case 1:
         page =  ConsultantsPage();
         break;
       case 2:
-        page = const AlumniPage();
+        page =  AlumniPage();
         break;
       case 3:
-        page = const SchoolPage();
+        page =  SchoolPage();
         break;
       case 4:
-        page = const CollegePage();
+        page =  CollegePage();
         break;
       default:
-        page = const NetworkPage(); // Default page
+        page =  NetworkPage(); // Default page
     }
 
     Navigator.push(
@@ -380,7 +388,7 @@ class _HomePageUniState extends State<HomePageUni> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => SearchPage(fetchUserData(widget.userId))),
+                                      builder: (context) => SearchPage(userId: widget.userId)),
                                 );
                               },
                               color: Colors.black,
@@ -446,26 +454,3 @@ class _HomePageUniState extends State<HomePageUni> {
     );
   }
 }
-
-class AlumniPage extends StatelessWidget {
-  const AlumniPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Alumni',style: TextStyle(color: Colors.white),),
-        backgroundColor: Colors.black87,
-      ),
-      body: ListView.builder(
-        itemCount: 20,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text('Alumni Item $index'),
-          );
-        },
-      ),
-    );
-  }
-}
-
