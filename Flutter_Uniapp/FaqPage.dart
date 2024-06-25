@@ -1,34 +1,48 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:uniflutterprot01/NetworkPage.dart';
+import 'FindPageUni.dart';
+import 'MyjourneyPage.dart';
 import 'AutomatedQuestionnairepage.dart';
+import 'ToolsPage.dart';
+import 'VisadoctoolPage.dart';
+import 'HomePageUni.dart';
+import 'Drawerpageuni.dart';
 
-void main() {
-  runApp(const MainApp());
-}
 
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: FaqPage(),
-    );
-  }
-}
 
 class FaqPage extends StatefulWidget {
+  final int userId;
+  const FaqPage({super.key, required this.userId});
+
   @override
   _FaqPageState createState() => _FaqPageState();
 }
 
 class _FaqPageState extends State<FaqPage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  get userIdProfile => userIdProfile;
+
   int _selectedIndex = 0;
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+      if(index == 2){
+        _scaffoldKey.currentState?.openDrawer();
+
+      }
+      else if(index == 1){
+
+      }
+      else if(index == 0){
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => HomePageUni(userId: widget.userId)),
+        );
+      }
     });
   }
 
@@ -69,8 +83,18 @@ class _FaqPageState extends State<FaqPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('Your App Title'),
+        title: Text(''),
         backgroundColor: Colors.black,
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(
+            Icons.arrow_back_ios,
+            size: 20.0,
+            color: Colors.white,
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -118,7 +142,7 @@ class _FaqPageState extends State<FaqPage> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => FaqPage()),
+                    MaterialPageRoute(builder: (context) => Visadoctoolpage()),
                   );
                 },
                 style: TextButton.styleFrom(
@@ -139,7 +163,7 @@ class _FaqPageState extends State<FaqPage> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => FaqPage()),
+                    MaterialPageRoute(builder: (context) => Myjourneypage()),
                   );
                 },
                 style: TextButton.styleFrom(
@@ -160,7 +184,7 @@ class _FaqPageState extends State<FaqPage> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => FaqPage()),
+                    MaterialPageRoute(builder: (context) => Myjourneypage()),
                   );
                 },
                 style: TextButton.styleFrom(
@@ -181,7 +205,7 @@ class _FaqPageState extends State<FaqPage> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => FaqPage()),
+                    MaterialPageRoute(builder: (context) => Myjourneypage()),
                   );
                 },
                 style: TextButton.styleFrom(
@@ -202,7 +226,7 @@ class _FaqPageState extends State<FaqPage> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => FaqPage()),
+                    MaterialPageRoute(builder: (context) => ToolsPage()),
                   );
                 },
                 style: TextButton.styleFrom(
@@ -223,7 +247,7 @@ class _FaqPageState extends State<FaqPage> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => FaqPage()),
+                    MaterialPageRoute(builder: (context) => NetworkPage()),
                   );
                 },
                 style: TextButton.styleFrom(
@@ -244,7 +268,7 @@ class _FaqPageState extends State<FaqPage> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => FaqPage()),
+                    MaterialPageRoute(builder: (context) => Myjourneypage()),
                   );
                 },
                 style: TextButton.styleFrom(
@@ -265,7 +289,7 @@ class _FaqPageState extends State<FaqPage> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => FaqPage()),
+                    MaterialPageRoute(builder: (context) => Myjourneypage()),
                   );
                 },
                 style: TextButton.styleFrom(
@@ -450,27 +474,33 @@ class _FaqPageState extends State<FaqPage> {
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         backgroundColor: Colors.white,
-        selectedLabelStyle: TextStyle(color: Colors.black),
+        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
+        unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal),
+        selectedItemColor: Colors.deepOrange,
+        unselectedItemColor: Colors.black,
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.home, color: Colors.black),
+            icon: Icon(Icons.home),
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.notifications, color: Colors.black),
+            icon: Icon(Icons.notifications),
             label: 'Notifications',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person, color: Colors.black),
+            icon: Icon(Icons.person),
             label: 'Account',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings, color: Colors.black),
+            icon: Icon(Icons.settings),
             label: 'Settings',
           ),
         ],
-        selectedItemColor: Colors.black,
       ),
+      drawer: CustomDrawer(
+        userDataFuture: fetchUserData(widget.userId),
+      ),
+      key: _scaffoldKey,
     );
   }
 }
