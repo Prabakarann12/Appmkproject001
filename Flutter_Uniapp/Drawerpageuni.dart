@@ -1,51 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'FindPageUni.dart';
 
-class HomePageUni extends StatefulWidget {
+class DrawerPage extends StatefulWidget {
   final int userId;
 
-  const HomePageUni({Key? key, required this.userId}) : super(key: key);
+  const DrawerPage({Key? key, required this.userId}) : super(key: key);
 
   @override
-  _HomePageUniState createState() => _HomePageUniState();
+  _DrawerPageState createState() => _DrawerPageState();
 }
-@override
 
-
-class _HomePageUniState extends State<HomePageUni> {
+class _DrawerPageState extends State<DrawerPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  int _selectedIndex = 0;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text('Home Page'),
+        title: Text('Drawer Page'),
       ),
       drawer: CustomDrawer(userDataFuture: fetchUserData()),
       body: Center(
-        child: Text('Home Page Content'),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Search',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_circle),
-            label: 'Account',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
+        child: Text('Drawer Page Content'),
       ),
     );
   }
@@ -59,23 +36,6 @@ class _HomePageUniState extends State<HomePageUni> {
     } else {
       throw Exception('Failed to load user data');
     }
-  }
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-      switch (index) {
-        case 1:
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => FindUniPage()),
-          );
-          break;
-        case 2:
-          _scaffoldKey.currentState?.openDrawer();
-          break;
-      }
-    });
   }
 }
 
@@ -146,6 +106,17 @@ class CustomDrawer extends StatelessWidget {
                   },
                 ),
                 ListTile(
+                  leading: Icon(Icons.phone),
+                  title: Text('Customer Helpline'),
+                  onTap: () {
+                    Navigator.pop(context); // Close the drawer
+                    // Navigate to Customer Helpline Page if not already on it
+                    if (ModalRoute.of(context)!.settings.name != '/customer-helpline') {
+                      Navigator.pushNamed(context, '/customer-helpline');
+                    }
+                  },
+                ),
+                ListTile(
                   leading: Icon(Icons.logout),
                   title: Text('Logout'),
                   onTap: () {
@@ -153,7 +124,9 @@ class CustomDrawer extends StatelessWidget {
                     // Perform logout actions
                     // For example, clear user session and navigate to login page
                     // Replace with your actual logout implementation
-                    Navigator.pushReplacementNamed(context, '/login');
+                    if (ModalRoute.of(context)!.settings.name != '/login') {
+                      Navigator.pushNamed(context,'/login');
+                    }
                   },
                 ),
               ],
