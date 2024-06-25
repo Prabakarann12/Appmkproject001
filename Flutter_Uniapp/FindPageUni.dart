@@ -3,28 +3,13 @@ import 'HomePageUni.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
-
-
-void main() {
-  runApp(const MainApp());
-}
-
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
-
-
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: FindUniPage(),
-
-    );
-  }
-}
+import 'Drawerpageuni.dart';
+import 'TutorialsPage.dart';
+import 'SearchPage.dart';
 
 class FindUniPage extends StatefulWidget {
+  final int userId;
+  const FindUniPage({super.key, required this.userId});
 
 
   @override
@@ -43,6 +28,7 @@ Future<Map<String, dynamic>> fetchUserData(int id) async {
 
 class _FindUniPageState extends State<FindUniPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  get userIdProfile => userIdProfile;
   int _selectedIndex = 1;
   bool _isTime1Selected = false;
   bool _isTime2Selected = false;
@@ -54,21 +40,32 @@ class _FindUniPageState extends State<FindUniPage> {
   bool _isTime8Selected = false;
   bool _isTime9Selected = false;
 
-  get userIdProfile => userIdProfile;
-
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
       if (index == 4) { // Account button index
         _scaffoldKey.currentState?.openDrawer();
       }
+      else if (index == 2) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => VideoPlayerApp()),
+        );
+      }
       if (index == 1) {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => FindUniPage()),
+          MaterialPageRoute(
+              builder: (context) => SearchPage(userId: widget.userId)),
         );
       }
       if (index == 0) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => HomePageUni(userId: widget.userId)),
+        );
 
       }
     });
@@ -154,6 +151,16 @@ class _FindUniPageState extends State<FindUniPage> {
           ),
           backgroundColor: Colors.black,
           centerTitle: true,
+          leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: Icon(
+              Icons.arrow_back_ios,
+              size: 20.0,
+              color: Colors.white,
+            ),
+          ),
         ),
         body: SingleChildScrollView(
 
@@ -560,9 +567,10 @@ class _FindUniPageState extends State<FindUniPage> {
             ),
           ],
         ),
+        drawer: CustomDrawer(
+          userDataFuture: fetchUserData(widget.userId),
+        ),
         key: _scaffoldKey,
-
-
       ),
     );
   }
