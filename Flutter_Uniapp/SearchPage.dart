@@ -6,25 +6,14 @@ import 'FaqPage.dart';
 import 'SearchFilterPage.dart';
 import 'FindPageUni.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'Drawerpageuni.dart';
+import 'HomePageUni.dart';
+import 'TutorialsPage.dart';
 
-void main() {
-  runApp(const MainApp());
-}
-
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
-
-  Future<Map<String, dynamic>> get userIdProfile => userIdProfile;
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: SearchPage(userIdProfile),
-    );
-  }
-}
 class SearchPage extends StatefulWidget {
-  SearchPage(Future<Map<String, dynamic>> fetchUserData);
+  final int userId;
+
+  const SearchPage({super.key, required this.userId});
 
   @override
   _SearchPageState createState() => _SearchPageState();
@@ -33,6 +22,8 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int _selectedIndex = 0;
+  get userIdProfile => userIdProfile;
+
   Widget _buildImageWithButton(String imageUrl, String country, String url) {
     return Container(
       width: 200,
@@ -107,14 +98,25 @@ class _SearchPageState extends State<SearchPage> {
       if (index == 4) { // Account button index
         _scaffoldKey.currentState?.openDrawer();
       }
+      else if (index == 2) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => VideoPlayerApp()),
+        );
+      }
       if (index == 1) {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => FindUniPage()),
+          MaterialPageRoute(builder: (context) => FindUniPage(userId: widget.userId)),
         );
       }
       if (index == 0) {
-
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => HomePageUni(userId: widget.userId)),
+        );
       }
     });
   }
@@ -134,11 +136,21 @@ class _SearchPageState extends State<SearchPage> {
       key: _scaffoldKey,
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("UniStudy",
+        title: Text("Serach",
           style: const TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.black,
         centerTitle: true,
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(
+            Icons.arrow_back_ios,
+            size: 20.0,
+            color: Colors.white,
+          ),
+        ),
       ),
 
       body: ListView(
@@ -211,7 +223,7 @@ class _SearchPageState extends State<SearchPage> {
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => SearchFilterPage()),
+                                MaterialPageRoute(builder: (context) => SearchFilterPage(userId: widget.userId)),
                               );// Handle button press here
                             },
                             style: TextButton.styleFrom(
@@ -573,7 +585,7 @@ class _SearchPageState extends State<SearchPage> {
                                 onPressed: () {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => FaqPage()),
+                                    MaterialPageRoute(builder: (context) => FaqPage(userId: widget.userId)),
                                   );
                                   // Handle Facebook login
                                 },
@@ -627,6 +639,9 @@ class _SearchPageState extends State<SearchPage> {
             label: 'Account',
           ),
         ],
+      ),
+      drawer: CustomDrawer(
+        userDataFuture: fetchUserData(widget.userId),
       ),
     );
   }
