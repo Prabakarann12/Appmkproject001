@@ -19,42 +19,8 @@ class _DocumentPageState extends State<DocumentPage> {
   final TextEditingController _passportController = TextEditingController();
   bool _aadhaarSubmitted = false;
   bool _passportSubmitted = false;
-  String? _selectedCategory; // Variable to track user selection (UG or PG)
 
   Future<void> _pickDocument(int index) async {
-    // Show documents based on the selected category (UG or PG)
-    switch (_selectedCategory) {
-      case 'UG':
-        _showUGDocuments(index);
-        break;
-      case 'PG':
-        _showPGDocuments(index);
-        break;
-      default:
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Please select UG or PG first')),
-        );
-    }
-  }
-
-  // Show UG documents
-  void _showUGDocuments(int index) {
-    setState(() {
-      _selectedFiles = List.filled(2, null); // Only 10th and 12th marksheet for UG
-    });
-    _pickFile(index);
-  }
-
-  // Show PG documents
-  void _showPGDocuments(int index) {
-    setState(() {
-      _selectedFiles = List.filled(3, null); // Include UG + PG documents
-    });
-    _pickFile(index);
-  }
-
-  // Method to actually pick the file
-  Future<void> _pickFile(int index) async {
     try {
       final result = await FilePicker.platform.pickFiles();
       if (result != null) {
@@ -96,7 +62,7 @@ class _DocumentPageState extends State<DocumentPage> {
         final selectedFile = _selectedFiles[i];
         if (selectedFile != null) {
           try {
-            final uri = Uri.parse('https://syfer001testing.000webhostapp.com/cloneapi/Uni_docinsert.php');
+            final uri = Uri.parse('');
             final request = http.MultipartRequest('POST', uri)
               ..files.add(await http.MultipartFile.fromPath('file', selectedFile))
               ..fields['id'] = Uuid().v4()
@@ -213,47 +179,26 @@ class _DocumentPageState extends State<DocumentPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              DropdownButton<String>(
-                value: _selectedCategory,
-                hint: Text('Select Category'),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedCategory = value;
-                    // Reset selected files when category changes
-                    _selectedFiles = List.filled(7, null);
-                  });
-                },
-                items: [
-                  DropdownMenuItem(child: Text('UG'), value: 'UG'),
-                  DropdownMenuItem(child: Text('PG'), value: 'PG'),
-                ],
+              DocumentUploadSection(
+                title: "10th Marksheet",
+                pickDocument: () => _pickDocument(0),
+                selectedFile: _selectedFiles[0],
+                progress: _uploadProgress[0],
               ),
-              SizedBox(height: 20),
-              if (_selectedCategory == 'UG' || _selectedCategory == 'PG')
-                DocumentUploadSection(
-                  title: "10th Marksheet",
-                  pickDocument: () => _pickDocument(0),
-                  selectedFile: _selectedFiles[0],
-                  progress: _uploadProgress[0],
-                ),
-              if (_selectedCategory == 'UG' || _selectedCategory == 'PG')
-                SizedBox(height: 10),
-              if (_selectedCategory == 'UG' || _selectedCategory == 'PG')
-                DocumentUploadSection(
-                  title: "12th Marksheet",
-                  pickDocument: () => _pickDocument(1),
-                  selectedFile: _selectedFiles[1],
-                  progress: _uploadProgress[1],
-                ),
-              if (_selectedCategory == 'PG')
-                SizedBox(height: 10),
-              if (_selectedCategory == 'PG')
-                DocumentUploadSection(
-                  title: "Any UG Certificate",
-                  pickDocument: () => _pickDocument(2),
-                  selectedFile: _selectedFiles[2],
-                  progress: _uploadProgress[2],
-                ),
+              SizedBox(height: 10),
+              DocumentUploadSection(
+                title: "12th Marksheet",
+                pickDocument: () => _pickDocument(1),
+                selectedFile: _selectedFiles[1],
+                progress: _uploadProgress[1],
+              ),
+              SizedBox(height: 10),
+              DocumentUploadSection(
+                title: "Any UG Certificate",
+                pickDocument: () => _pickDocument(2),
+                selectedFile: _selectedFiles[2],
+                progress: _uploadProgress[2],
+              ),
               SizedBox(height: 10),
               DocumentUploadSection(
                 title: "Medical Certificate",
@@ -277,36 +222,54 @@ class _DocumentPageState extends State<DocumentPage> {
               ),
               SizedBox(height: 10),
               DocumentUploadSection(
-                title: "Signature",
+                title: "Income Certificate",
                 pickDocument: () => _pickDocument(6),
                 selectedFile: _selectedFiles[6],
                 progress: _uploadProgress[6],
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 10),
               AadhaarInputSection(
-                controller: _aadhaarController,
-                onChanged: () {
+                aadhaarController: _aadhaarController,
+                aadhaarSubmitted: _aadhaarSubmitted,
+                onSubmitted: (value) {
                   setState(() {
-                    _aadhaarSubmitted = false;
+                    _aadhaarSubmitted = true;
                   });
                 },
               ),
               SizedBox(height: 10),
               PassportInputSection(
-                controller: _passportController,
-                onChanged: () {
+                passportController: _passportController,
+                passportSubmitted: _passportSubmitted,
+                onSubmitted: (value) {
                   setState(() {
-                    _passportSubmitted = false;
+                    _passportSubmitted = true;
                   });
                 },
               ),
               SizedBox(height: 20),
-              Center(
-                child: ElevatedButton(
-                  onPressed: _submit,
-                  child: Text('Submit'),
+              ElevatedButton(
+                onPressed: _submit,
+                child: Text(
+                  'Upload',
+                  style: TextStyle(color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
                 ),
               ),
+              SizedBox(height: 20),
+              if (_fileUploaded)
+                Center(
+                  child: Text(
+                    'Files and data uploaded successfully!',
+                    style: TextStyle(
+                      color: Colors.green,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
@@ -321,13 +284,12 @@ class DocumentUploadSection extends StatelessWidget {
   final String? selectedFile;
   final double progress;
 
-  const DocumentUploadSection({
-    Key? key,
+  DocumentUploadSection({
     required this.title,
     required this.pickDocument,
     required this.selectedFile,
     required this.progress,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -336,49 +298,51 @@ class DocumentUploadSection extends StatelessWidget {
       children: [
         Text(
           title,
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        SizedBox(height: 5),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            ElevatedButton(
-              onPressed: pickDocument,
-              child: Text('Pick Document'),
-            ),
-            if (selectedFile != null)
-              Container(
-                width: 150,
-                child: LinearProgressIndicator(
-                  value: progress,
-                  minHeight: 10,
-                ),
-              ),
-            if (selectedFile != null) SizedBox(width: 10),
-            if (selectedFile != null)
-              TextButton(
-                onPressed: () {},
-                child: Text(
-                  'Remove',
-                  style: TextStyle(color: Colors.red),
-                ),
-              ),
-          ],
+        SizedBox(height: 10),
+        ElevatedButton(
+          onPressed: pickDocument,
+          child: Text(
+            'Pick Document',
+            style: TextStyle(color: Colors.white),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.black,
+          ),
         ),
+        if (selectedFile != null)
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Selected file: ${selectedFile!.split('/').last}',
+                style: TextStyle(fontSize: 16),
+              ),
+              SizedBox(height: 10),
+              LinearProgressIndicator(
+                value: progress,
+              ),
+              SizedBox(height: 10),
+            ],
+          ),
       ],
     );
   }
 }
-
 class AadhaarInputSection extends StatelessWidget {
-  final TextEditingController controller;
-  final VoidCallback onChanged;
+  final TextEditingController aadhaarController;
+  final bool aadhaarSubmitted;
+  final Function(String) onSubmitted;
 
-  const AadhaarInputSection({
-    Key? key,
-    required this.controller,
-    required this.onChanged,
-  }) : super(key: key);
+  AadhaarInputSection({
+    required this.aadhaarController,
+    required this.aadhaarSubmitted,
+    required this.onSubmitted,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -387,15 +351,19 @@ class AadhaarInputSection extends StatelessWidget {
       children: [
         Text(
           'Aadhaar Number',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        SizedBox(height: 5),
+        SizedBox(height: 10),
         TextField(
-          controller: controller,
-          onChanged: (_) => onChanged(),
+          controller: aadhaarController,
+          onSubmitted: onSubmitted,
           decoration: InputDecoration(
-            hintText: 'Enter Aadhaar Number',
             border: OutlineInputBorder(),
+            labelText: 'Enter Aadhaar Number',
+            errorText: aadhaarSubmitted && aadhaarController.text.isEmpty ? 'Aadhaar Number is required' : null,
           ),
         ),
       ],
@@ -404,14 +372,15 @@ class AadhaarInputSection extends StatelessWidget {
 }
 
 class PassportInputSection extends StatelessWidget {
-  final TextEditingController controller;
-  final VoidCallback onChanged;
+  final TextEditingController passportController;
+  final bool passportSubmitted;
+  final Function(String) onSubmitted;
 
-  const PassportInputSection({
-    Key? key,
-    required this.controller,
-    required this.onChanged,
-  }) : super(key: key);
+  PassportInputSection({
+    required this.passportController,
+    required this.passportSubmitted,
+    required this.onSubmitted,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -420,15 +389,19 @@ class PassportInputSection extends StatelessWidget {
       children: [
         Text(
           'Passport Number',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        SizedBox(height: 5),
+        SizedBox(height: 10),
         TextField(
-          controller: controller,
-          onChanged: (_) => onChanged(),
+          controller: passportController,
+          onSubmitted: onSubmitted,
           decoration: InputDecoration(
-            hintText: 'Enter Passport Number',
             border: OutlineInputBorder(),
+            labelText: 'Enter Passport Number',
+            errorText: passportSubmitted && passportController.text.isEmpty ? 'Passport Number is required' : null,
           ),
         ),
       ],
