@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:table_calendar/table_calendar.dart';
 import 'HomePageUni.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -6,12 +7,11 @@ import 'dart:convert';
 import 'Drawerpageuni.dart';
 import 'TutorialsPage.dart';
 import 'SearchPage.dart';
+import 'package:intl/intl.dart';
 
 class FindUniPage extends StatefulWidget {
   final int userId;
   const FindUniPage({super.key, required this.userId});
-
-
   @override
   _FindUniPageState createState() => _FindUniPageState();
 }
@@ -39,6 +39,10 @@ class _FindUniPageState extends State<FindUniPage> {
   bool _isTime7Selected = false;
   bool _isTime8Selected = false;
   bool _isTime9Selected = false;
+  DateTime _focusedDay = DateTime.now();
+  Set<DateTime> _selectedDays = {};
+  bool _isIconPressed = false;
+
 
   void _onItemTapped(int index) {
     setState(() {
@@ -286,8 +290,8 @@ class _FindUniPageState extends State<FindUniPage> {
               ),
               SizedBox(height: 20),
               Center(
-                child: Container(
-                  height: 250,
+                child:Container(
+                  height: 530,
                   width: 420,
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.black, width: 2),
@@ -302,46 +306,107 @@ class _FindUniPageState extends State<FindUniPage> {
                     ],
                   ),
                   child: Card(
-                    color: Colors.white,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Row(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                    left: 8.0, top: 10.0),
-                                child: Icon(Icons.date_range),
-                              ),
-                              SizedBox(width: 5),
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                    left: 8.0, top: 10.0),
-                                child: Text(
-                                  "Choose Duration",
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 18.0,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    Padding(
+                                      padding: EdgeInsets.only(left: 8.0, top: 10.0),
+                                      child: Icon(Icons.date_range),
+                                    ),
+                                    SizedBox(width: 5),
+                                    Padding(
+                                      padding: EdgeInsets.only(left: 8.0, top: 10.0),
+                                      child: Text(
+                                        "Pick a day",
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 18.0,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.clear,
+                                    color: _isIconPressed ? Colors.red : Colors.black,
                                   ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _selectedDays.clear();
+                                      _isIconPressed = true;
+                                    });
+
+                                    Future.delayed(Duration(milliseconds: 300), () {
+                                      setState(() {
+                                        _isIconPressed = false;
+                                      });
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 8.0),
+                            child: TableCalendar(
+                              firstDay: DateTime.utc(2021, 1, 1),
+                              lastDay: DateTime.utc(2030, 12, 31),
+                              focusedDay: _focusedDay,
+                              selectedDayPredicate: (day) {
+                                return _selectedDays.contains(day);
+                              },
+                              headerStyle: HeaderStyle(
+                                formatButtonVisible: false,
+                              ),
+                              calendarStyle: CalendarStyle(
+                                selectedDecoration: BoxDecoration(
+                                  color: Colors.black,
+                                  shape: BoxShape.circle,
+                                ),
+                                todayDecoration: BoxDecoration(
+                                  color: Colors.blue,
+                                  shape: BoxShape.circle,
                                 ),
                               ),
-                            ],
+                              daysOfWeekStyle: DaysOfWeekStyle(
+                                weekdayStyle: TextStyle(color: Colors.blue),
+                                weekendStyle: TextStyle(color: Colors.red),
+                              ),
+                              onDaySelected: (selectedDay, focusedDay) {
+                                setState(() {
+                                  if (_selectedDays.contains(selectedDay)) {
+                                    _selectedDays.remove(selectedDay);
+                                  } else if (_selectedDays.length < 10) {
+                                    _selectedDays.add(selectedDay);
+                                  }
+                                  _focusedDay = focusedDay;
+                                });
+                              },
+                            ),
                           ),
-                        ),
-                      ],
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              'Selected Days: ${_selectedDays.map((date) => DateFormat('yyyy-MM-dd').format(date)).join(', ')}',
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-
-
               SizedBox(height: 20),
               Center(
                 child: Container(
@@ -516,8 +581,6 @@ class _FindUniPageState extends State<FindUniPage> {
                           ),
                         ],
                       )
-
-
                   ),
                 ),
               ),
@@ -575,4 +638,3 @@ class _FindUniPageState extends State<FindUniPage> {
     );
   }
 }
-
