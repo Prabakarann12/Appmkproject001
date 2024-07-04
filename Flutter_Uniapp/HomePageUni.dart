@@ -11,6 +11,7 @@ import 'ConsultantsPage.dart';
 import 'CollegePage.dart';
 import 'SchoolPage.dart';
 import 'AlumniPage.dart';
+import 'DocumentPage.dart';
 
 
 class HomePageUni extends StatefulWidget {
@@ -223,7 +224,10 @@ class _HomePageUniState extends State<HomePageUni> {
                                                         print('Card 1 clicked');
                                                         break;
                                                       case 1:
-                                                        print('Card 2 clicked');
+                                                        Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(builder: (context) => DocumentPage()),
+                                                        );
                                                         break;
                                                     }
                                                   },
@@ -454,3 +458,5 @@ class _HomePageUniState extends State<HomePageUni> {
     );
   }
 }
+
+
