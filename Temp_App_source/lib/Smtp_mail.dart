@@ -17,8 +17,8 @@ class Homepage extends StatefulWidget {
 class _HomepageState extends State<Homepage> {
   Future<void> sendingmail() async {
     try {
-      var userEmail = 'prabakarann1298@gmail.com';
-      var password = '';
+      var userEmail = 'useremail';
+      var password = 'userapppassword';
 
       final smtpServer = gmail(userEmail, password);
       var rng = Random();
@@ -26,7 +26,7 @@ class _HomepageState extends State<Homepage> {
 
       final message = Message()
         ..from = Address(userEmail, 'Unistudy')
-        ..recipients.add('dpappteam@gmail.com')
+        ..recipients.add('reciver email')
         ..subject = 'Email Validation'
         ..text = 'Your validation code is: $code';
 
