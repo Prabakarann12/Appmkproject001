@@ -18,7 +18,7 @@ class _HomepageState extends State<Homepage> {
   Future<void> sendingmail() async {
     try {
       var userEmail = 'prabakarann1298@gmail.com';
-      var password = 'jywrqugbvxyyvgtl';
+      var password = '';
 
       final smtpServer = gmail(userEmail, password);
       var rng = Random();
