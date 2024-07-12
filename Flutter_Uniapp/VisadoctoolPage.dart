@@ -1,11 +1,31 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
+import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 import 'package:permission_handler/permission_handler.dart';
 
+import 'ThemeNotifier.dart';
+
+void main() {
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => ThemeNotifier(),
+      child: MyApp(),
+    ),
+  );
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Visadoctoolpage(), // Example userId
+    );
+  }
+}
 Future<void> _requestPermission() async {
   if (await Permission.storage.request().isGranted) {
     // Permission is granted
@@ -14,24 +34,7 @@ Future<void> _requestPermission() async {
   }
 }
 
-void main() {
-  runApp(const MainApp());
-}
 
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: Visadoctoolpage(),
-    );
-  }
-}
 
 class Visadoctoolpage extends StatefulWidget {
   @override
@@ -63,62 +66,70 @@ class _Visadoctoolpage extends State<Visadoctoolpage> {
   }
 
   Widget _buildVisaDocumentLinkCard() {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
-      elevation: 5,
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "Link Visa Document",
-              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 23.0),
-            ),
-            const SizedBox(height: 15),
-            TextFormField(
-              onChanged: (value) {
-                setState(() {
-                  _visaDocumentUrl = value;
-                });
-              },
-              decoration: const InputDecoration(
-                labelText: 'Enter URL for study plan',
-                border: OutlineInputBorder(),
+    return Consumer<ThemeNotifier>(
+        builder: (context, themeNotifier, child)
+    {
+      return Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        elevation: 5,
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+               Text(
+                "Link Visa Document",
+                style: TextStyle(color:themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 23.0),
               ),
-            ),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: _linkVisaDocument,
-              child: const Text(
-                'Submit',
-                style: TextStyle(color: Colors.white),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-                minimumSize: const Size(double.infinity, 50),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+              const SizedBox(height: 15),
+              TextFormField(
+                onChanged: (value) {
+                  setState(() {
+                    _visaDocumentUrl = value;
+                  });
+                },
+                decoration: const InputDecoration(
+                  labelText: 'Enter URL for study plan',
+                  border: OutlineInputBorder(),
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              "Accepted File type: PDF, JPG, or provide a URL",
-              style: TextStyle(color: Colors.black),
-            ),
-            const SizedBox(height: 20),
-            LinearProgressIndicator(
-              value: _uploadProgress1,
-              backgroundColor: Colors.grey[300],
-              color: Colors.blue,
-            ),
-          ],
+              const SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: _linkVisaDocument,
+                child:  Text(
+                  'Submit',
+                  style: TextStyle(color:themeNotifier.themeMode == ThemeMode.dark ? Colors.black : Colors.white,),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
+                  minimumSize: const Size(double.infinity, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+               Text(
+                "Accepted File type: PDF, JPG, or provide a URL",
+                style: TextStyle(color:themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,),
+              ),
+              const SizedBox(height: 20),
+              LinearProgressIndicator(
+                value: _uploadProgress1,
+                backgroundColor: Colors.grey[300],
+                color: Colors.blue,
+              ),
+            ],
+          ),
         ),
-      ),
+      );
+    },
     );
+
   }
 
   Future<void> _pickDocument() async {
@@ -232,266 +243,273 @@ class _Visadoctoolpage extends State<Visadoctoolpage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "App Logo",
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
+    return Consumer<ThemeNotifier>(
+        builder: (context, themeNotifier, child)
+    {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            "App Logo",
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
           ),
+          backgroundColor: Colors.white,
+          actions: <Widget>[
+            IconButton(
+              icon: const Icon(Icons.notifications, color: Colors.black),
+              onPressed: () {
+                // Notification button pressed
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.person, color: Colors.black),
+              onPressed: () {
+                // Profile button pressed
+              },
+            ),
+          ],
         ),
-        backgroundColor: Colors.white,
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.notifications, color: Colors.black),
-            onPressed: () {
-              // Notification button pressed
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.person, color: Colors.black),
-            onPressed: () {
-              // Profile button pressed
-            },
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "Upload Document",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 23.0,
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                 Text(
+                  "Upload Document",
+                  style: TextStyle(
+                    color:themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 23.0,
+                  ),
                 ),
-              ),
-              Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                elevation: 5,
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ElevatedButton(
-                        onPressed: _pickDocument,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text(
-                              'Pick Document',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            if (_fileUploaded)
-                              const Padding(
-                                padding: EdgeInsets.only(left: 10.0),
-                                child: Icon(
-                                  Icons.check_circle,
-                                  color: Colors.green,
-                                ),
-                              ),
-                          ],
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black,
-                          minimumSize: const Size(double.infinity, 50),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      if (_selectedFile != null)
-                        Text(
-                          'Picked file: $_selectedFile',
-                          style: const TextStyle(color: Colors.black),
-                        ),
-                      const SizedBox(height: 20),
-                      LinearProgressIndicator(
-                        value: _uploadProgress,
-                        backgroundColor: Colors.grey[300],
-                        color: Colors.blue,
-                      ),
-                      const SizedBox(height: 10),
-                      if (_selectedFile != null)
+                Card(
+                  color: themeNotifier.themeMode == ThemeMode.dark ? Colors.black : Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  elevation: 5,
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         ElevatedButton(
-                          onPressed: _submit,
-                          child: const Text(
-                            'Submit',
-                            style: TextStyle(color: Colors.white),
+                          onPressed: _pickDocument,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                               Text(
+                                'Pick Document',
+                                style: TextStyle(color:themeNotifier.themeMode == ThemeMode.dark ? Colors.black : Colors.white,),
+                              ),
+                              if (_fileUploaded)
+                                const Padding(
+                                  padding: EdgeInsets.only(left: 10.0),
+                                  child: Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                  ),
+                                ),
+                            ],
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.black,
+                            backgroundColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
                             minimumSize: const Size(double.infinity, 50),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
                           ),
                         ),
-                      const SizedBox(height: 10),
-                      if (_selectedFile == null)
-                        const Text(
-                          'Please pick a file before submitting.',
-                          style: TextStyle(color: Colors.red),
+                        const SizedBox(height: 20),
+                        if (_selectedFile != null)
+                          Text(
+                            'Picked file: $_selectedFile',
+                            style:  TextStyle(color: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,),
+                          ),
+                        const SizedBox(height: 20),
+                        LinearProgressIndicator(
+                          value: _uploadProgress,
+                          backgroundColor: Colors.grey[300],
+                          color: Colors.blue,
                         ),
-                    ],
+                        const SizedBox(height: 10),
+                        if (_selectedFile != null)
+                          ElevatedButton(
+                            onPressed: _submit,
+                            child:  Text(
+                              'Submit',
+                              style: TextStyle(color:themeNotifier.themeMode == ThemeMode.dark ? Colors.black : Colors.white,),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
+                              minimumSize: const Size(double.infinity, 50),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          ),
+                        const SizedBox(height: 10),
+                        if (_selectedFile == null)
+                          const Text(
+                            'Please pick a file before submitting.',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              _buildVisaDocumentLinkCard(),
-              SizedBox(height: 10,),
-              Text(
-                "Feedback and Recommendations",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 23.0,
-                ),
-              ),
-              Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                elevation: 5,
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Consultants name",
-                        style: TextStyle(color: Colors.black, fontSize: 15),
-                      ),
-                      SizedBox(height: 0,),
-                      Text("Timestamp",
-                        style: TextStyle(color: Colors.black,fontSize: 10),),
-                      const SizedBox(height:10),
-                      Text(
-                        "Detailed feedback on the document or study plan.",
-                        style: TextStyle(color: Colors.black, fontSize: 15),
-                      ),
-                      SizedBox(height: 10,),
-                      Text("Replay marke as Resolved",
-                        style: TextStyle(color: Colors.black,fontSize: 15),
-                      ),
-                    ],
+                const SizedBox(height: 20),
+                _buildVisaDocumentLinkCard(),
+                SizedBox(height: 10,),
+                Text(
+                  "Feedback and Recommendations",
+                  style: TextStyle(
+                    color: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 23.0,
                   ),
                 ),
-              ),
-              SizedBox(height: 10,),
-              Text(
-                "Suggestions for revition",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 23.0,
-                ),
-              ),
-              Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                elevation: 5,
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Checkbox(
-                            value: _isChecked,
-                            onChanged: (bool? value) {
-                              setState(() {
-                                _isChecked = value!;
-                              });
-                            },
-                            activeColor: Colors.cyan,
-                          ),
-                          Text('Suggestions 1'),
-                        ],
-                      ),
-                      SizedBox(height: 2,),
-                      Row(
-                        children: [
-                          Checkbox(
-                            value: _isChecked1,
-                            onChanged: (bool? value) {
-                              setState(() {
-                                _isChecked1 = value!;
-                              });
-                            },
-                            activeColor: Colors.cyan,
-                          ),
-                          Text('Suggestions 2'),
-                        ],
-                      ),
-                      SizedBox(height: 2,),
-                      Row(
-                        children: [
-                          Checkbox(
-                            value: _isChecked2,
-                            onChanged: (bool? value) {
-                              setState(() {
-                                _isChecked2 = value!;
-                              });
-                            },
-                            activeColor: Colors.cyan,
-                          ),
-                          Text('Suggestions 3'),
-                        ],
-                      ),
-                    ],
+                Card(
+                  color: themeNotifier.themeMode == ThemeMode.dark ? Colors.black : Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  elevation: 5,
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Consultants name",
+                          style: TextStyle(color: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,fontSize: 15),
+                        ),
+                        SizedBox(height: 0,),
+                        Text("Timestamp",
+                          style: TextStyle(color:themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black, fontSize: 10),),
+                        const SizedBox(height: 10),
+                        Text(
+                          "Detailed feedback on the document or study plan.",
+                          style: TextStyle(color: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,fontSize: 15),
+                        ),
+                        SizedBox(height: 10,),
+                        Text("Replay marke as Resolved",
+                          style: TextStyle(color:themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black, fontSize: 15),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+                SizedBox(height: 10,),
+                Text(
+                  "Suggestions for revition",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 23.0,
+                  ),
+                ),
+                Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  elevation: 5,
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: _isChecked,
+                              onChanged: (bool? value) {
+                                setState(() {
+                                  _isChecked = value!;
+                                });
+                              },
+                              activeColor: Colors.cyan,
+                            ),
+                            Text('Suggestions 1',style: TextStyle(color:themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black, ),),
+                          ],
+                        ),
+                        SizedBox(height: 2,),
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: _isChecked1,
+                              onChanged: (bool? value) {
+                                setState(() {
+                                  _isChecked1 = value!;
+                                });
+                              },
+                              activeColor: Colors.cyan,
+                            ),
+                            Text('Suggestions 2',style: TextStyle(color: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,),),
+                          ],
+                        ),
+                        SizedBox(height: 2,),
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: _isChecked2,
+                              onChanged: (bool? value) {
+                                setState(() {
+                                  _isChecked2 = value!;
+                                });
+                              },
+                              activeColor: Colors.cyan,
+                            ),
+                            Text('Suggestions 3',style: TextStyle(color: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,),),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        backgroundColor: Colors.white,
-        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
-        unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal),
-        selectedItemColor: Colors.deepOrange,
-        unselectedItemColor: Colors.black,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.file_upload_outlined),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.join_inner_rounded),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.message_rounded),
-            label: '',
-          ),
+        bottomNavigationBar: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+          backgroundColor:themeNotifier.themeMode == ThemeMode.dark ? Colors.black : Colors.white,
+          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
+          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal),
+          selectedItemColor: Colors.deepOrange,
+          unselectedItemColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
+          items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: '',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.file_upload_outlined),
+              label: '',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.join_inner_rounded),
+              label: '',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.message_rounded),
+              label: '',
+            ),
 
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: '',
-          ),
-        ],
-      ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              label: '',
+            ),
+          ],
+        ),
 
+      );
+    },
     );
   }
 }
