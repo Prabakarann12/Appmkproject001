@@ -20,7 +20,6 @@ class MainApp extends StatelessWidget {
     );
   }
 }
-
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -32,7 +31,6 @@ class HomePage extends StatelessWidget {
     );
   }
 }
-
 class RegisterPage extends StatefulWidget {
   @override
   _RegisterPageState createState() => _RegisterPageState();
@@ -151,7 +149,6 @@ class _RegisterPageState extends State<RegisterPage> {
       });
     }
   }
-
   void _clearFormFields() {
     _firstNameController.clear();
     _lastNameController.clear();
@@ -363,7 +360,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 child: _isLoading
                     ? CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
                 )
                     : Text(
                   "Register",
