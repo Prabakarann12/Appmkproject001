@@ -24,7 +24,9 @@ class _SchoolPageState extends State<SchoolPage> {
 
     if (response.statusCode == 200) {
       final parsed = jsonDecode(response.body)['data'].cast<Map<String, dynamic>>();
-      return parsed.map<School>((json) => School.fromJson(json)).toList();
+      List<School> schools = parsed.map<School>((json) => School.fromJson(json)).toList();
+      schools.sort((a, b) => a.title.compareTo(b.title)); // Sort the list alphabetically by title
+      return schools;
     } else {
       throw Exception('Failed to load schools');
     }
@@ -40,7 +42,7 @@ class _SchoolPageState extends State<SchoolPage> {
           onPressed: () {
             Navigator.pop(context);
           },
-          icon: Icon(
+          icon: const Icon(
             Icons.arrow_back_ios,
             size: 20.0,
             color: Colors.white,
@@ -51,11 +53,13 @@ class _SchoolPageState extends State<SchoolPage> {
         future: futureSchools,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+            ));
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No schools found'));
+            return const Center(child: Text('No schools found'));
           } else {
             final schools = snapshot.data!;
             return ListView.builder(
@@ -73,7 +77,6 @@ class _SchoolPageState extends State<SchoolPage> {
                       fit: BoxFit.cover,
                     ),
                     title: Text(school.title),
-                    subtitle: Text(school.subtitle),
                     trailing: const Icon(Icons.arrow_forward),
                     onTap: () {
                       launchWebsite(school.website);
@@ -89,24 +92,45 @@ class _SchoolPageState extends State<SchoolPage> {
   }
 
   void launchWebsite(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
+    try {
+      final encodedUrl = Uri.encodeFull(url);
+      if (await canLaunch(encodedUrl)) {
+        await launch(encodedUrl, forceSafariVC: false, forceWebView: false);
+      } else {
+        _showErrorDialog('Could not launch $url');
+      }
+    } catch (e) {
+      _showErrorDialog('Error launching URL: $e');
     }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Error'),
+        content: Text(message),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 }
 
 class School {
   final String imagePath;
   final String title;
-  final String subtitle;
   final String website;
 
   School({
     required this.imagePath,
     required this.title,
-    required this.subtitle,
     required this.website,
   });
 
@@ -114,7 +138,6 @@ class School {
     return School(
       imagePath: json['School_image_path'],
       title: json['School_title'],
-      subtitle: json['School_subtitle'],
       website: json['school_website'],
     );
   }
