@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'HomePageUni.dart';
 import 'RegisterPage.dart';
-import 'SearchPage.dart';
+import 'forgotpwPage.dart';
 
 void main() {
   runApp(const MainApp());
@@ -65,8 +66,38 @@ class _SignInPageState extends State<SignInPage> {
       payload: 'item x',
     );
   }
+  void _showErrorDialog(String message) {
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Error',style: TextStyle(color: Colors.black),),
+          backgroundColor: Colors.white,
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK',style: TextStyle(color: Colors.black),),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   void validateCredentials() async {
+    if (emailController.text.isEmpty) {
+      _showErrorDialog('Please enter your email');
+      return;
+    }
+
+    if (passwordController.text.isEmpty) {
+      _showErrorDialog('Please enter your password');
+      return;
+    }
     setState(() {
       _isLoading = true;
       _errorMessage = '';
@@ -100,17 +131,17 @@ class _SignInPageState extends State<SignInPage> {
           _clearFormFields();
         } else {
           setState(() {
-            _errorMessage = 'Invalid email or password';
+            _showErrorDialog('Invalid email or password');
           });
         }
       } else {
         setState(() {
-          _errorMessage = 'Error: ${response.reasonPhrase}';
+          _showErrorDialog('Error: ${response.reasonPhrase}');
         });
       }
     } catch (error) {
       setState(() {
-        _errorMessage = 'Error occurred: $error';
+        _showErrorDialog('Error occurred: $error');
       });
     } finally {
       setState(() {
@@ -156,7 +187,7 @@ class _SignInPageState extends State<SignInPage> {
               SizedBox(height: 8),
               Text(
                 "Login",
-                style: TextStyle(fontSize: 35.0, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 35.0, fontWeight: FontWeight.bold,color: Colors.black),
                 textAlign: TextAlign.left,
               ),
               SizedBox(height: 10.0),
@@ -168,6 +199,7 @@ class _SignInPageState extends State<SignInPage> {
               ),
               SizedBox(height: 30.0),
               TextField(
+
                 controller: emailController,
                 decoration: InputDecoration(
                   labelText: "Email",
@@ -175,6 +207,7 @@ class _SignInPageState extends State<SignInPage> {
                     borderRadius: BorderRadius.circular(25.0),
                   ),
                 ),
+                style: TextStyle(color: Colors.black),
               ),
               SizedBox(height: 20.0),
               TextField(
@@ -184,7 +217,7 @@ class _SignInPageState extends State<SignInPage> {
                   labelText: "Password",
                   suffixIcon: IconButton(
                     icon: Icon(
-                      obscureText ? Icons.visibility : Icons.visibility_off,
+                      obscureText ? Icons.visibility : Icons.visibility_off,color: Colors.grey,
                     ),
                     onPressed: () {
                       setState(() {
@@ -196,13 +229,15 @@ class _SignInPageState extends State<SignInPage> {
                     borderRadius: BorderRadius.circular(25.0),
                   ),
                 ),
+                style: TextStyle(color: Colors.black),
               ),
               SizedBox(height: 20.0),
               GestureDetector(
                 onTap: () {
                   // Handle forgot password action
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Forgot password tapped")),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ForgotPasswordPage()),
                   );
                 },
                 child: Text(
@@ -215,7 +250,10 @@ class _SignInPageState extends State<SignInPage> {
               ),
               SizedBox(height: 30.0),
               _isLoading
-                  ? Center(child: CircularProgressIndicator())
+                  ? Center(child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+              ))
+
                   : MaterialButton(
                 minWidth: double.infinity,
                 height: 50,
