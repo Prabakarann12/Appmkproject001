@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 import 'dart:convert';
 import 'Chatpage.dart';
 
@@ -49,10 +50,70 @@ class _ConsultantsPageState extends State<ConsultantsPage> {
       final jsonData = json.decode(response.body);
       final List<dynamic> consultantsData = jsonData['data'];
 
-      return consultantsData.map((json) => Consultant.fromJson(json)).toList();
+      List<Consultant> consultants = consultantsData.map((json) => Consultant.fromJson(json)).toList();
+      consultants.sort((a, b) => a.name.compareTo(b.name)); // Sorting in alphabetical order
+      return consultants;
     } else {
       throw Exception('Failed to load consultants');
     }
+  }
+
+  void _showOptions(BuildContext context, Consultant consultant) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext bc) {
+        return SafeArea(
+          child: Wrap(
+            children: <Widget>[
+              ListTile(
+                leading: const Icon(Icons.chat),
+                iconColor: Colors.black,
+                title: const Text('Chat', style: TextStyle(color: Colors.black)),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ChatPage(
+                        consultantName: consultant.name,
+                        consultantImage: 'https://syfer001testing.000webhostapp.com/cloneapi/${consultant.imagePath}',
+                        consultantPhoneNumber: consultant.phone,
+                      ),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.email),
+                iconColor: Colors.black,
+                title: const Text('Email', style: TextStyle(color: Colors.black)),
+                onTap: () {
+                  Navigator.pop(context);
+                  final Uri emailLaunchUri = Uri(
+                    scheme: 'mailto',
+                    path: consultant.email,
+                  );
+                  launch(emailLaunchUri.toString());
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.phone),
+                iconColor: Colors.black,
+                title: const Text('Call', style: TextStyle(color: Colors.black)),
+                onTap: () {
+                  Navigator.pop(context);
+                  final Uri phoneLaunchUri = Uri(
+                    scheme: 'tel',
+                    path: consultant.phone,
+                  );
+                  launch(phoneLaunchUri.toString());
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -65,7 +126,9 @@ class _ConsultantsPageState extends State<ConsultantsPage> {
         future: futureConsultants,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+            ));
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
@@ -83,30 +146,13 @@ class _ConsultantsPageState extends State<ConsultantsPage> {
                     leading: Image.network(
                       'https://syfer001testing.000webhostapp.com/cloneapi/${consultant.imagePath}',
                       width: 50,
+
                       height: 50,
                       fit: BoxFit.cover,
                     ),
                     title: Text(consultant.name),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(consultant.email),
-                        Text(consultant.phone),
-                      ],
-                    ),
                     trailing: const Icon(Icons.arrow_forward),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ChatPage(
-                            consultantName: consultant.name,
-                            consultantImage: 'https://syfer001testing.000webhostapp.com/cloneapi/${consultant.imagePath}',
-                            consultantPhoneNumber: consultant.phone,
-                          ),
-                        ),
-                      );
-                    },
+                    onTap: () => _showOptions(context, consultant),
                   ),
                 );
               },
@@ -117,4 +163,3 @@ class _ConsultantsPageState extends State<ConsultantsPage> {
     );
   }
 }
-
