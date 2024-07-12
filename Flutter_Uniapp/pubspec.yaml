@@ -29,6 +29,9 @@ dependencies:
   intl: ^0.19.0
   getwidget: ^4.0.0
   local_auth: ^2.2.0
+  mailer: ^6.1.1
+  provider: ^6.1.2
+
 
 dev_dependencies:
   flutter_test:
@@ -61,3 +64,4 @@ flutter:
     - assets/imm.png
     - assets/Unipdgtool.png
     - assets/UniappIcon2.png
+
