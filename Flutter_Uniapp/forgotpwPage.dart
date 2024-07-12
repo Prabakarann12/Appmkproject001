@@ -213,7 +213,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             ),
             SizedBox(height: 20.0),
             _isSending
-                ? Center(child: CircularProgressIndicator())
+                ? Center(child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+            ))
                 : MaterialButton(
               minWidth: double.infinity,
               height: 50,
