@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uniflutterprot01/Help&supportPage.dart';
+import 'ProfileInformationPage.dart';
+import 'SecurityQuestionsPage.dart';
 import 'SignInPage.dart';
 import 'ThemeNotifier.dart';
+import 'forgotpwPage.dart';
+import 'AboutPage.dart';
 
 void main() {
   runApp(
@@ -18,19 +24,16 @@ class MyApp extends StatelessWidget {
     brightness: Brightness.light,
     primaryColor: Colors.blue,
     hintColor: Colors.amber,
-    // Add other properties as needed
   );
-
-  // Define the dark theme
   final ThemeData darkTheme = ThemeData(
     brightness: Brightness.dark,
     primaryColor: Colors.grey,
     hintColor: Colors.blueAccent,
     // Add other properties as needed
   );
-
   @override
   Widget build(BuildContext context) {
+    final int userId = ModalRoute.of(context)!.settings.arguments as int;
     return Consumer<ThemeNotifier>(
       builder: (context, themeNotifier, child) {
         return MaterialApp(
@@ -38,7 +41,7 @@ class MyApp extends StatelessWidget {
           theme: lightTheme,
           darkTheme: darkTheme,
           themeMode: themeNotifier.themeMode,
-          home: SettingsPage(),
+          home: SettingsPage(userId: 1,),
         );
       },
     );
@@ -46,17 +49,38 @@ class MyApp extends StatelessWidget {
 }
 
 class SettingsPage extends StatefulWidget {
+  final int userId;
+  const SettingsPage({Key? key, required this.userId}) : super(key: key);
+
   @override
   _SettingsPageState createState() => _SettingsPageState();
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  // Switch states
-  bool _pushNotifications = true;
-  bool _emailNotifications = true;
-  bool _appNotifications = true;
+  bool _pushNotifications = false;
   bool _appLock = true;
 
+  @override
+  void initState() {
+    super.initState();
+
+  }
+  void _loadNotificationSettings() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _pushNotifications = prefs.getBool('pushNotifications') ?? false; // Default to off
+    });
+  }
+  void _updateNotificationSettings(bool value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('pushNotifications', value);
+
+    if (value) {
+
+    } else {
+
+    }
+  }
   void showLogoutConfirmationDialog(BuildContext context, ThemeNotifier themeNotifier) {
     showDialog(
       context: context,
@@ -110,9 +134,20 @@ class _SettingsPageState extends State<SettingsPage> {
           appBar: AppBar(
             title: Text(
               'Settings',
-              style: TextStyle(color: themeNotifier.themeMode == ThemeMode.dark ? Colors.black : Colors.white),
+              style: TextStyle(color: Colors.white),
             ),
-            backgroundColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
+            backgroundColor: Colors.black,
+            centerTitle: true,
+            leading: IconButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: Icon(
+                Icons.arrow_back_ios,
+                size: 20.0,
+                color: Colors.white,
+              ),
+            ),
           ),
           backgroundColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.black : Colors.white,
           body: ListView(
@@ -127,7 +162,10 @@ class _SettingsPageState extends State<SettingsPage> {
                     textColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
                     iconColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
                     onTap: () {
-                      // Add navigation or logic here
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => ProfileInformationPage(userId: widget.userId)),
+                      );
                     },
                   ),
                   SettingsTile(
@@ -137,17 +175,10 @@ class _SettingsPageState extends State<SettingsPage> {
                     textColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
                     iconColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
                     onTap: () {
-                      // Add navigation or logic here
-                    },
-                  ),
-                  SettingsTile(
-                    icon: Icons.security,
-                    title: 'Two-Factor Authentication',
-                    subtitle: 'Enable two-step verification',
-                    textColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
-                    iconColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
-                    onTap: () {
-                      // Add navigation or logic here
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => ForgotPasswordPage()),
+                      );
                     },
                   ),
                 ],
@@ -166,36 +197,12 @@ class _SettingsPageState extends State<SettingsPage> {
                     onSwitchChanged: (bool value) {
                       setState(() {
                         _pushNotifications = value;
+                        _updateNotificationSettings(value);
                       });
                     },
-                  ),
-                  SettingsTile(
-                    icon: Icons.email,
-                    title: 'Email Notifications',
-                    subtitle: 'Receive notifications via email',
-                    textColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
-                    iconColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
-                    isSwitch: true,
-                    switchValue: _emailNotifications,
-                    onSwitchChanged: (bool value) {
-                      setState(() {
-                        _emailNotifications = value;
-                      });
-                    },
-                  ),
-                  SettingsTile(
-                    icon: Icons.notifications_active,
-                    title: 'App Notifications',
-                    subtitle: 'Manage notifications from the app',
-                    textColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
-                    iconColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
-                    isSwitch: true,
-                    switchValue: _appNotifications,
-                    onSwitchChanged: (bool value) {
-                      setState(() {
-                        _appNotifications = value;
-                      });
-                    },
+                    activeColor: Colors.teal,
+                    inactiveThumbColor: Colors.black,
+                    inactiveTrackColor: Colors.grey,
                   ),
                 ],
               ),
@@ -217,6 +224,21 @@ class _SettingsPageState extends State<SettingsPage> {
                     },
                   ),
                   SettingsTile(
+                    icon: Icons.question_answer,
+                    title: 'Security Questions',
+                    subtitle: 'Set security questions for account recovery',
+                    textColor: themeNotifier.themeMode == ThemeMode.dark ? Colors
+                        .white : Colors.black,
+                    iconColor: themeNotifier.themeMode == ThemeMode.dark ? Colors
+                        .white : Colors.black,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => SecurityQuestionsPage()),
+                      );
+                    },
+                  ),
+                  SettingsTile(
                     icon: Icons.brightness_6,
                     title: 'Dark Mode',
                     subtitle: 'Toggle dark/light theme',
@@ -232,61 +254,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       inactiveTrackColor: Colors.grey,
                     ),
                   ),
-                  SettingsTile(
-                    icon: Icons.login,
-                    title: 'Login Alerts',
-                    subtitle: 'Receive alerts on login activities',
-                    textColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
-                    iconColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
-                    onTap: () {
-                      // Add navigation or logic here
-                    },
-                  ),
-                  SettingsTile(
-                    icon: Icons.question_answer,
-                    title: 'Security Questions',
-                    subtitle: 'Set security questions for account recovery',
-                    textColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
-                    iconColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
-                    onTap: () {
-                      // Add navigation or logic here
-                    },
-                  ),
-                ],
-              ),
-              SettingsSection(
-                title: 'Privacy',
-                tiles: [
-                  SettingsTile(
-                    icon: Icons.shield,
-                    title: 'Data Sharing Preferences',
-                    subtitle: 'Set preferences for data sharing',
-                    textColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
-                    iconColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
-                    onTap: () {
-                      // Add navigation or logic here
-                    },
-                  ),
-                  SettingsTile(
-                    icon: Icons.visibility,
-                    title: 'Activity Status',
-                    subtitle: 'View your activity status',
-                    textColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
-                    iconColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
-                    onTap: () {
-                      // Add navigation or logic here
-                    },
-                  ),
-                  SettingsTile(
-                    icon: Icons.location_on,
-                    title: 'Location Settings',
-                    subtitle: 'Manage your location preferences',
-                    textColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
-                    iconColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
-                    onTap: () {
-                      // Add navigation or logic here
-                    },
-                  ),
+
                 ],
               ),
               SettingsSection(
@@ -299,7 +267,10 @@ class _SettingsPageState extends State<SettingsPage> {
                     textColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
                     iconColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
                     onTap: () {
-                      // Add navigation or logic here
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => HelpSupportPage()),
+                      );
                     },
                   ),
                   SettingsTile(
@@ -309,17 +280,44 @@ class _SettingsPageState extends State<SettingsPage> {
                     textColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
                     iconColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
                     onTap: () {
-                      // Add navigation or logic here
-                    },
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => AboutPage()),
+                      );
+                      },
                   ),
                   SettingsTile(
                     icon: Icons.logout,
+                    iconColor: Colors.black,
                     title: 'Logout',
-                    subtitle: 'Sign out of your account',
                     textColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
-                    iconColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
+                    subtitle: 'Sign out of your account?',
                     onTap: () {
-                      showLogoutConfirmationDialog(context, themeNotifier);
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            backgroundColor: Colors.white,
+                            title: Text('Sign out of your account?',style: TextStyle(fontSize: 20, color:themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,),),
+
+                            actions: [
+                              TextButton(
+                                child: Text('Cancel', style: TextStyle(color: Colors.grey)),
+                                onPressed: () {
+                                  Navigator.of(context).pop(); // Dismiss the dialog
+                                },
+                              ),
+                              TextButton(
+                                child: Text('Logout', style: TextStyle(color: Colors.red)),
+                                onPressed: () {
+                                  Navigator.of(context).pop(); // Dismiss the dialog
+                                  _logout(context); // Perform the logout action
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
                     },
                   ),
                 ],
@@ -330,7 +328,16 @@ class _SettingsPageState extends State<SettingsPage> {
       },
     );
   }
+  void _logout(BuildContext context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear(); // Clear all data from SharedPreferences
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => SignInPage()),
+    );
+  }
 }
+
 
 class SettingsSection extends StatelessWidget {
   final String title;
@@ -372,6 +379,10 @@ class SettingsTile extends StatelessWidget {
   final ValueChanged<bool>? onSwitchChanged;
   final VoidCallback? onTap;
   final Widget? trailing;
+  final Color activeColor;
+  final Color inactiveThumbColor;
+  final Color inactiveTrackColor;
+
 
   SettingsTile({
     required this.icon,
@@ -384,6 +395,9 @@ class SettingsTile extends StatelessWidget {
     this.onSwitchChanged,
     this.onTap,
     this.trailing,
+    this.activeColor = Colors.teal,
+    this.inactiveThumbColor = Colors.black,
+    this.inactiveTrackColor = Colors.grey,
   });
 
   @override
