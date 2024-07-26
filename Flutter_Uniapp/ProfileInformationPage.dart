@@ -73,24 +73,10 @@ class _ProfileInformationPageState extends State<ProfileInformationPage> {
     super.dispose();
   }
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-      if (index == 4) {
-        _scaffoldKey.currentState?.openDrawer();
-      } else if (index == 1) {
-        // Handle Find button tap
-      } else if (index == 0) {
-        // Handle Explore button tap
-      } else if (index == 2) {
-        // Handle Tutorials button tap
-      }
-    });
-  }
-
   Future<Map<String, dynamic>> fetchUserData(int id) async {
     final response = await http.get(Uri.parse(
-        'https://syfer001testing.000webhostapp.com/cloneapi/showdataflutter02.php?id=$id'));
+        'https://syfer001testing.000webhostapp.com/cloneapi/Alphaapi.php?requestby=showuserdata&id=$id'));
+    //https://syfer001testing.000webhostapp.com/cloneapi/showdataflutter02.php?id=$id
 
     if (response.statusCode == 200) {
       return json.decode(response.body);
@@ -101,7 +87,7 @@ class _ProfileInformationPageState extends State<ProfileInformationPage> {
 
   Future<void> updateUserDetails() async {
     final Uri uploadUri = Uri.parse(
-        'https://syfer001testing.000webhostapp.com/cloneapi/uniupdatepageapi.php');
+        'https://syfer001testing.000webhostapp.com/cloneapi/Alphaapi.php');
             //https://syfer001testing.000webhostapp.com/cloneapi/uniupdatepageapi.php
 
     try {
@@ -173,9 +159,8 @@ class _ProfileInformationPageState extends State<ProfileInformationPage> {
             ),
             backgroundColor: Colors.black,
             leading: IconButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
+              onPressed: () {Navigator.pop(context);
+                },
               icon: Icon(
                 Icons.arrow_back_ios,
                 size: 20.0,
@@ -196,7 +181,7 @@ class _ProfileInformationPageState extends State<ProfileInformationPage> {
                           "My Profile",
                           style: TextStyle(
                             fontSize: 24,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w500,
                             color: themeNotifier.themeMode == ThemeMode.dark
                                 ? Colors.white
                                 : Colors.black,
@@ -254,8 +239,7 @@ class _ProfileInformationPageState extends State<ProfileInformationPage> {
                                         final userData =
                                         snapshot.data!;
                                         final imageUrl =
-                                            'https://syfer001testing.000webhostapp.com/cloneapi/' +
-                                                userData['file_path'];
+                                            'https://syfer001testing.000webhostapp.com/cloneapi/' + userData['file_path'];
                                         return Image.network(
                                           imageUrl,
                                           fit: BoxFit.cover,
