@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:uniflutterprot01/SettingsPage.dart';
 import 'FindPageUni.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -26,15 +27,12 @@ class MyApp extends StatelessWidget {
   }
 }
 
-
 class SearchFilterPage extends StatefulWidget {
   final int userId;
   const SearchFilterPage({super.key, required this.userId});
   @override
   _SearchFilterPageState createState() => _SearchFilterPageState();
-
 }
-
 
 class _SearchFilterPageState extends State<SearchFilterPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -58,103 +56,46 @@ class _SearchFilterPageState extends State<SearchFilterPage> {
   bool _isApplyFilterSelected = false;
   double _budgetRange = 0;
 
-
-
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
+    setState(() {_selectedIndex = index;
       if (index == 4) { // Account button index
         _scaffoldKey.currentState?.openDrawer();
       }
       else if (index == 2) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => VideoPlayerApp()),
-        );
+        Navigator.push(context, MaterialPageRoute(builder: (context) => VideoListScreen()),);
       }
-      if (index == 1) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => FindUniPage(userId: widget.userId)),
-        );
+      else if (index == 1) {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => FindUniPage(userId: widget.userId)),);
       }
-      if (index == 0) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => HomePageUni(userId: widget.userId)),
-        );
+      else if (index == 0) {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => HomePageUni(userId: widget.userId)),);
       }
+      else if (index == 3) {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsPage(userId: widget.userId)),);}
     });
   }
   void _onCurrentLocationSelected() {
-    setState(() {
-      _isCurrentLocationSelected = !_isCurrentLocationSelected;
-
-    });
-  }
-
+    setState(() {_isCurrentLocationSelected = !_isCurrentLocationSelected;});}
   void _onSearchLocationSelected() {
-    setState(() {
-      _isSearchLocationSelected = !_isSearchLocationSelected;
-    });
-  }
-
+    setState(() {_isSearchLocationSelected = !_isSearchLocationSelected;});}
   void _onTodaySelected() {
-    setState(() {
-      _isTodaySelected = !_isTodaySelected;
-    });
-  }
-
+    setState(() {_isTodaySelected = !_isTodaySelected;});}
   void _onTomorrowSelected() {
-    setState(() {
-      _isTomorrowSelected = !_isTomorrowSelected;
-    });
-  }
-
+    setState(() {_isTomorrowSelected = !_isTomorrowSelected;});}
   void _onThisWeekSelected() {
-    setState(() {
-      _isThisWeekSelected = !_isThisWeekSelected;
-    });
-  }
-
+    setState(() {_isThisWeekSelected = !_isThisWeekSelected;});}
   void _onThisMonthSelected() {
-    setState(() {
-      _isThisMonthSelected = !_isThisMonthSelected;
-    });
-  }
-
+    setState(() {_isThisMonthSelected = !_isThisMonthSelected;});}
   void _onConcertsSelected() {
-    setState(() {
-      _isConcertsSelected = !_isConcertsSelected;
-    });
-  }
-
+    setState(() {_isConcertsSelected = !_isConcertsSelected;});}
   void _onPartiesSelected() {
-    setState(() {
-      _isPartiesSelected = !_isPartiesSelected;
-    });
-  }
-
+    setState(() {_isPartiesSelected = !_isPartiesSelected;});}
   void _onListeningEventSelected() {
-    setState(() {
-      _isListeningEventSelected = !_isListeningEventSelected;
-    });
-  }
-
+    setState(() {_isListeningEventSelected = !_isListeningEventSelected;});}
   void _onFestivalsSelected() {
-    setState(() {
-      _isFestivalsSelected = !_isFestivalsSelected;
-    });
-  }
-
+    setState(() {_isFestivalsSelected = !_isFestivalsSelected;});}
   void _onToursSelected() {
-    setState(() {
-      _isToursSelected = !_isToursSelected;
-    });
-  }
-
+    setState(() {_isToursSelected = !_isToursSelected;});}
   void _onChooseDateSelected() async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -179,19 +120,10 @@ class _SearchFilterPageState extends State<SearchFilterPage> {
       });
     }
   }
-
-  void _onDayTimeSelected() {
-    setState(() {
-      _isDayTimeSelected = !_isDayTimeSelected;
-    });
+  void _onDayTimeSelected() {setState(() {_isDayTimeSelected = !_isDayTimeSelected;});
   }
-
-  void _onNightTimeSelected() {
-    setState(() {
-      _isNightTimeSelected = !_isNightTimeSelected;
-    });
+  void _onNightTimeSelected() {setState(() {_isNightTimeSelected = !_isNightTimeSelected;});
   }
-
   void _onSelectTimeSelected() async {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
@@ -208,17 +140,11 @@ class _SearchFilterPageState extends State<SearchFilterPage> {
       },
     );
     if (picked != null) {
-      setState(() {
-        _isSelectTimeSelected = true;
-        // You can save the selected time here if needed
-      });
+      setState(() {_isSelectTimeSelected = true;});
     }
   }
-
   void _onApplyFilterSelected() {
-    setState(() {
-      _isApplyFilterSelected = !_isApplyFilterSelected;
-    });
+    setState(() {_isApplyFilterSelected = !_isApplyFilterSelected;});
     _applyFilters(); // Add this line to apply filters and store data
   }
   void _applyFilters() async {
@@ -260,8 +186,6 @@ class _SearchFilterPageState extends State<SearchFilterPage> {
       print('Failed to connect to the server');
     }
   }
-
-
   void _resetFilter() {
     setState(() {
       _isCurrentLocationSelected = false;
@@ -300,13 +224,7 @@ class _SearchFilterPageState extends State<SearchFilterPage> {
             onPressed: () {
               Navigator.pop(context);
             },
-            icon: Icon(
-              Icons.arrow_back_ios,
-              size: 20.0,
-              color: Colors.white,
-            ),
-          ),
-        ),
+            icon: Icon(Icons.arrow_back_ios, size: 20.0, color: Colors.white,),),),
         body: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -329,8 +247,7 @@ class _SearchFilterPageState extends State<SearchFilterPage> {
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       foregroundColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.black : Colors.white,
-                      backgroundColor: _isCurrentLocationSelected
-                          ? Colors.green
+                      backgroundColor: _isCurrentLocationSelected ? Colors.green
                           :themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
                     ),
                     onPressed: _onCurrentLocationSelected,
@@ -349,47 +266,29 @@ class _SearchFilterPageState extends State<SearchFilterPage> {
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 20.0, top: 10),
-                child: Text(
-                  "Select Date",
-                  style: TextStyle(
-                    color:themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 18.0,
-                  ),
-                ),
-              ),
+                child: Text("Select Date", style: TextStyle(color:themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black, fontWeight: FontWeight.w600, fontSize: 18.0,),),),
               const SizedBox(height: 20),
               Column(
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
+                      ElevatedButton(style: ElevatedButton.styleFrom(
                           foregroundColor:themeNotifier.themeMode == ThemeMode.dark ? Colors.black : Colors.white,
-                          backgroundColor: _isTodaySelected
-                              ? Colors.green
-                              : themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
-                        ),
+                          backgroundColor: _isTodaySelected ? Colors.green : themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,),
                         onPressed: _onTodaySelected,
                         child: const Text('Today'),
                       ),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           foregroundColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.black : Colors.white,
-                          backgroundColor: _isTomorrowSelected
-                              ? Colors.green
-                              :themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
-                        ),
+                          backgroundColor: _isTomorrowSelected ? Colors.green :themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,),
                         onPressed: _onTomorrowSelected,
                         child: const Text('Tomorrow'),
                       ),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           foregroundColor:themeNotifier.themeMode == ThemeMode.dark ? Colors.black : Colors.white,
-                          backgroundColor: _isThisWeekSelected
-                              ? Colors.green
-                              : themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
+                          backgroundColor: _isThisWeekSelected ? Colors.green : themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
                         ),
                         onPressed: _onThisWeekSelected,
                         child: const Text('This Week'),
@@ -403,19 +302,14 @@ class _SearchFilterPageState extends State<SearchFilterPage> {
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           foregroundColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.black : Colors.white,
-                          backgroundColor: _isThisMonthSelected
-                              ? Colors.green
-                              :themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
-                        ),
+                          backgroundColor: _isThisMonthSelected ? Colors.green :themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,),
                         onPressed: _onThisMonthSelected,
                         child: const Text('This Month'),
                       ),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           foregroundColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.black : Colors.white,
-                          backgroundColor: _isChooseDateSelected
-                              ? Colors.green
-                              : themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
+                          backgroundColor: _isChooseDateSelected ? Colors.green : themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
                         ),
                         onPressed: _onChooseDateSelected,
                         child: const Text('Choose Date'),
@@ -442,8 +336,7 @@ class _SearchFilterPageState extends State<SearchFilterPage> {
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       foregroundColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.black : Colors.white,
-                      backgroundColor: _isDayTimeSelected
-                          ? Colors.green
+                      backgroundColor: _isDayTimeSelected ? Colors.green
                           : themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
                     ),
                     onPressed: _onDayTimeSelected,
@@ -452,9 +345,7 @@ class _SearchFilterPageState extends State<SearchFilterPage> {
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       foregroundColor:themeNotifier.themeMode == ThemeMode.dark ? Colors.black : Colors.white,
-                      backgroundColor: _isNightTimeSelected
-                          ? Colors.green
-                          :themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
+                      backgroundColor: _isNightTimeSelected ? Colors.green :themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
                     ),
                     onPressed: _onNightTimeSelected,
                     child: const Text('Night Time'),
@@ -462,9 +353,7 @@ class _SearchFilterPageState extends State<SearchFilterPage> {
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       foregroundColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.black : Colors.white,
-                      backgroundColor: _isSelectTimeSelected
-                          ? Colors.green
-                          : themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
+                      backgroundColor: _isSelectTimeSelected ? Colors.green : themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
                     ),
                     onPressed: _onSelectTimeSelected,
                     child: const Text('Select Time'),
@@ -473,14 +362,8 @@ class _SearchFilterPageState extends State<SearchFilterPage> {
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 20.0, top: 10),
-                child: Text(
-                  "Event Type",
-                  style: TextStyle(
-                    color:themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 18.0,
-                  ),
-                ),
+                child: Text("Event Type", style: TextStyle(color:themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
+                    fontWeight: FontWeight.w600, fontSize: 18.0,)),
               ),
               const SizedBox(height: 20),
               Column(
@@ -491,9 +374,7 @@ class _SearchFilterPageState extends State<SearchFilterPage> {
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           foregroundColor:themeNotifier.themeMode == ThemeMode.dark ? Colors.black : Colors.white,
-                          backgroundColor: _isConcertsSelected
-                              ? Colors.green
-                              :themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
+                          backgroundColor: _isConcertsSelected ? Colors.green :themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
                         ),
                         onPressed: _onConcertsSelected,
                         child: const Text('Concerts'),
@@ -501,9 +382,7 @@ class _SearchFilterPageState extends State<SearchFilterPage> {
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           foregroundColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.black : Colors.white,
-                          backgroundColor: _isPartiesSelected
-                              ? Colors.green
-                              :themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
+                          backgroundColor: _isPartiesSelected ? Colors.green :themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
                         ),
                         onPressed: _onPartiesSelected,
                         child: const Text('Parties'),
@@ -511,8 +390,7 @@ class _SearchFilterPageState extends State<SearchFilterPage> {
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           foregroundColor:themeNotifier.themeMode == ThemeMode.dark ? Colors.black : Colors.white,
-                          backgroundColor: _isListeningEventSelected ? Colors
-                              .green :themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
+                          backgroundColor: _isListeningEventSelected ? Colors.green :themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
                         ),
                         onPressed: _onListeningEventSelected,
                         child: const Text('Listening Events'),
@@ -526,8 +404,7 @@ class _SearchFilterPageState extends State<SearchFilterPage> {
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           foregroundColor:themeNotifier.themeMode == ThemeMode.dark ? Colors.black : Colors.white,
-                          backgroundColor: _isFestivalsSelected
-                              ? Colors.green
+                          backgroundColor: _isFestivalsSelected ? Colors.green
                               :themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
                         ),
                         onPressed: _onFestivalsSelected,
@@ -536,8 +413,7 @@ class _SearchFilterPageState extends State<SearchFilterPage> {
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           foregroundColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.black : Colors.white,
-                          backgroundColor: _isToursSelected
-                              ? Colors.green
+                          backgroundColor: _isToursSelected ? Colors.green
                               : themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
                         ),
                         onPressed: _onToursSelected,
@@ -552,40 +428,24 @@ class _SearchFilterPageState extends State<SearchFilterPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    const Text(
-                      "0",
-                      style: TextStyle(fontSize: 16),
-                    ),
+                    const Text("0", style: TextStyle(fontSize: 16),),
                     Expanded(
                       child: Slider(
-                        value: _budgetRange,
-                        min: 0,
-                        max: 100,
-                        divisions: 100,
-                        label: _budgetRange.round().toString(),
-                        activeColor: Colors.green,
-                        onChanged: (double value) {
-                          setState(() {
-                            _budgetRange = value;
-                          });
+                        value: _budgetRange, min: 0, max: 100, divisions: 100, label: _budgetRange.round().toString(),
+                        activeColor: Colors.green, onChanged: (double value) {
+                          setState(() {_budgetRange = value;});
                         },
                       ),
                     ),
-                    const Text(
-                      "100",
-                      style: TextStyle(fontSize: 16),
-                    ),
+                    const Text("100", style: TextStyle(fontSize: 16),),
                   ],
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 20.0, top: 10),
-                child: Text(
-                  "Apply Filter",
-                  style: TextStyle(
+                child: Text("Apply Filter", style: TextStyle(
                     color:themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 18.0,
+                    fontWeight: FontWeight.w600, fontSize: 18.0,
                   ),
                 ),
               ),
@@ -603,12 +463,8 @@ class _SearchFilterPageState extends State<SearchFilterPage> {
               const SizedBox(height: 10),
               Center(
                 child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    backgroundColor: Colors.red,
-                  ),
-                  onPressed: _resetFilter,
-                  child: const Text('Reset Filter'),
+                  style: ElevatedButton.styleFrom(foregroundColor: Colors.white, backgroundColor: Colors.red,),
+                  onPressed: _resetFilter, child: const Text('Reset Filter'),
                 ),
               ),
             ],
@@ -624,31 +480,15 @@ class _SearchFilterPageState extends State<SearchFilterPage> {
           selectedItemColor: Colors.deepOrange,
           unselectedItemColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
           items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-              icon: Icon(Icons.public),
-              label: 'Explor',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.search),
-              label: 'Find',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.play_circle),
-              label: 'Tutorials',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.bookmark),
-              label: 'Book',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.account_circle),
-              label: 'Account',
-            ),
+
+            BottomNavigationBarItem(icon: Icon(Icons.public), label: 'Explor',),
+            BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Find',),
+            BottomNavigationBarItem(icon: Icon(Icons.play_circle), label: 'Tutorials',),
+            BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Setting',),
+            BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: 'Account',),
           ],
         ),
-        drawer: CustomDrawer(
-          userDataFuture: fetchUserData(widget.userId),
-        ),
+        drawer: CustomDrawer(userDataFuture: fetchUserData(widget.userId),),
       );
     },
     );
