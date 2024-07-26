@@ -5,7 +5,6 @@ import 'SignInPage.dart';
 import 'RegisterPage.dart';
 import 'ThemeNotifier.dart';
 
-
 void main() {
   runApp(
     ChangeNotifierProvider(
@@ -14,24 +13,17 @@ void main() {
     ),
   );
 }
-
-
 class MyApp extends StatelessWidget {
   // Define the light theme
   final ThemeData lightTheme = ThemeData(
     brightness: Brightness.light,
     primaryColor: Colors.grey,
-    hintColor: Colors.grey,
-    // Add other properties as needed
-  );
+    hintColor: Colors.grey,);
 
-  // Define the dark theme
   final ThemeData darkTheme = ThemeData(
     brightness: Brightness.dark,
     primaryColor: Colors.grey,
-    hintColor: Colors.grey,
-    // Add other properties as needed
-  );
+    hintColor: Colors.grey,);
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +65,6 @@ class _HomePage1State extends State<HomePage1> {
       print(e);
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,7 +74,6 @@ class _HomePage1State extends State<HomePage1> {
           builder: (context, constraints) {
             double height = constraints.maxHeight;
             double width = constraints.maxWidth;
-
             return Container(
               width: double.infinity,
               height: height,
@@ -95,10 +85,7 @@ class _HomePage1State extends State<HomePage1> {
                   Column(
                     children: <Widget>[
                       SizedBox(height: height * 0.05),
-                      Text(
-                        "Welcome",
-                        style: TextStyle(fontSize: width * 0.09, fontWeight: FontWeight.bold,color: Colors.black),
-                      ),
+                      Text("Welcome", style: TextStyle(fontSize: width * 0.09, fontWeight: FontWeight.bold,color: Colors.black),),
                       SizedBox(height: height * 0.02),
                       Text(
                         "Explore programs and connect globally",
@@ -139,7 +126,6 @@ class _HomePage1State extends State<HomePage1> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.white, // Replace with your desired color
                           ),
-
                         ),
 
                         SizedBox(height: 20,)
