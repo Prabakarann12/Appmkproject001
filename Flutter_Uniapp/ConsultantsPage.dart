@@ -44,7 +44,7 @@ class _ConsultantsPageState extends State<ConsultantsPage> {
   }
 
   Future<List<Consultant>> fetchConsultants() async {
-    final response = await http.get(Uri.parse('https://syfer001testing.000webhostapp.com/cloneapi/consultantshdata.php'));
+    final response = await http.get(Uri.parse('https://syfer001testing.000webhostapp.com/cloneapi/Alphaapi.php?requestby=consultantdata'));
 
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
@@ -56,7 +56,7 @@ class _ConsultantsPageState extends State<ConsultantsPage> {
     } else {
       throw Exception('Failed to load consultants');
     }
-  }
+  } 
 
   void _showOptions(BuildContext context, Consultant consultant) {
     showModalBottomSheet(
@@ -120,7 +120,18 @@ class _ConsultantsPageState extends State<ConsultantsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Consultants'),
+        title: const Text('Consultants', style: TextStyle(color: Colors.white),),
+        backgroundColor: Colors.black,
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(
+            Icons.arrow_back_ios,
+            size: 20.0,
+            color: Colors.white,
+          ),
+        ),
       ),
       body: FutureBuilder<List<Consultant>>(
         future: futureConsultants,
@@ -146,7 +157,6 @@ class _ConsultantsPageState extends State<ConsultantsPage> {
                     leading: Image.network(
                       'https://syfer001testing.000webhostapp.com/cloneapi/${consultant.imagePath}',
                       width: 50,
-
                       height: 50,
                       fit: BoxFit.cover,
                     ),
