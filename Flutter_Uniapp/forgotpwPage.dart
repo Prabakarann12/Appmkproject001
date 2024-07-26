@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server/gmail.dart';
+import 'package:pin_code_fields/pin_code_fields.dart';
 import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:core';
 
 class ForgotPasswordPage extends StatefulWidget {
   @override
   _ForgotPasswordPageState createState() => _ForgotPasswordPageState();
 }
-
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   final TextEditingController emailController = TextEditingController();
-  final TextEditingController codeController = TextEditingController();
+  final  TextEditingController codeController = TextEditingController();
   final TextEditingController newPasswordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
   bool _isSending = false;
@@ -28,7 +29,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       });
 
       var userEmail = 'prabakarann1298@gmail.com'; // Your email
-      var password = 'jywrqugbvxyyvgtl'; // Your email app password
+      var password = ''; // Your email app password
 
       final smtpServer = gmail(userEmail, password);
       var rng = Random();
@@ -64,20 +65,23 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     }
 
     final enteredCode = int.tryParse(codeController.text);
-    if (enteredCode == _verificationCode) {
+    if (enteredCode != null && enteredCode == _verificationCode) {
       _showResetPasswordDialog();
     } else {
       setState(() {
         _statusMessage = 'Invalid verification code';
       });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Invalid verification code')),
+      );
     }
   }
-
   void _showResetPasswordDialog() {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
+          backgroundColor: Colors.white,
           title: Text('Reset Password', style: TextStyle(color: Colors.black)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -88,9 +92,18 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 obscureText: obscureText,
                 decoration: InputDecoration(
                   labelText: 'New Password',
-                  border: OutlineInputBorder(
+                  labelStyle: TextStyle(color: Colors.black),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.black, width: 1.0),
                     borderRadius: BorderRadius.circular(25.0),
                   ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.black, width: 1.0),
+                    borderRadius: BorderRadius.circular(20.0)
+                  ),
+                  fillColor: Colors.black,
+                  hoverColor: Colors.black,
+                  focusColor: Colors.black,
                   suffixIcon: IconButton(
                     icon: Icon(
                       obscureText ? Icons.visibility : Icons.visibility_off,
@@ -103,15 +116,24 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   ),
                 ),
               ),
-              SizedBox(height: 15.0,),
+              SizedBox(height: 15.0),
               TextField(
                 controller: confirmPasswordController,
                 obscureText: obscureText,
                 decoration: InputDecoration(
                   labelText: 'Confirm Password',
-                  border: OutlineInputBorder(
+                  labelStyle: TextStyle(color: Colors.black),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.black, width: 1.0),
                     borderRadius: BorderRadius.circular(25.0),
                   ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.black, width: 1.0),
+                    borderRadius: BorderRadius.circular(20.0),
+                  ),
+                  focusColor: Colors.black,
+                  fillColor: Colors.black,
+                  hoverColor: Colors.black,
                   suffixIcon: IconButton(
                     icon: Icon(
                       obscureText ? Icons.visibility : Icons.visibility_off,
@@ -157,12 +179,12 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   }
 
   Future<void> _resetPassword(String email, String newPassword) async {
-    final url = Uri.parse('https://syfer001testing.000webhostapp.com/cloneapi/forgotpassword.php');
+    final url = Uri.parse('https://syfer001testing.000webhostapp.com/cloneapi/Alphaapi.php');
     try {
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
-        body: json.encode({'email': email, 'newPassword': newPassword}),
+        body: json.encode({'requestby':'forgotpassword', 'email': email, 'newPassword': newPassword}),
       );
 
       if (response.statusCode == 200) {
@@ -189,8 +211,13 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text('Forgot Password', style: TextStyle(color: Colors.black)),
-        backgroundColor: Colors.white,
-        iconTheme: IconThemeData(color: Colors.black),
+
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(Icons.arrow_back_ios, size: 20, color: Colors.black),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -206,10 +233,20 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               controller: emailController,
               decoration: InputDecoration(
                 labelText: 'Email',
+                labelStyle: TextStyle(color: Colors.black),
                 border: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black, width: 1.0),
                   borderRadius: BorderRadius.circular(25.0),
                 ),
+                focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.black, width: 1.0),
+                  borderRadius: BorderRadius.circular(20.0),
+                ),
+                hoverColor: Colors.black,
+                focusColor: Colors.black,
+                fillColor: Colors.black,
               ),
+              style: TextStyle(color: Colors.black),
             ),
             SizedBox(height: 20.0),
             _isSending
@@ -236,14 +273,28 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               ),
             ),
             SizedBox(height: 20.0),
-            TextField(
+            PinCodeTextField(
+              appContext: context,
+              length: 6,
               controller: codeController,
-              decoration: InputDecoration(
-                labelText: 'Verification Code',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(25.0),
-                ),
+              keyboardType: TextInputType.number,
+              obscureText: false,
+              animationType: AnimationType.none,
+              pinTheme: PinTheme(
+                shape: PinCodeFieldShape.underline,
+                fieldHeight: 50,
+                fieldWidth: 40,
+                activeFillColor: Colors.white,
+                inactiveFillColor: Colors.white,
+                activeColor: Colors.black, // Border color when a pin is active
+                inactiveColor: Colors.black, // Border color for inactive pins
+                selectedColor: Colors.black, // Color of the pin while entering
+                selectedFillColor: Colors.white,
               ),
+              cursorColor: Colors.black,
+              textStyle: TextStyle(color: Colors.black),
+               onChanged: (value) {
+                },
             ),
             SizedBox(height: 20.0),
             MaterialButton(
