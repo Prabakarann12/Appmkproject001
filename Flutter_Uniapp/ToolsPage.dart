@@ -255,8 +255,19 @@ Widget buildCardContent(int index) {
           title: Text(
             "Explore study abroad tools",
             style: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          backgroundColor: Colors.black,
+          centerTitle: true,
+          leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: Icon(
+              Icons.arrow_back_ios,
+              size: 20.0,
+              color: Colors.white,
             ),
           ),
           actions: <Widget>[
@@ -280,6 +291,7 @@ Widget buildCardContent(int index) {
                     padding: const EdgeInsets.all(8.0),
                     child: TextField(
                       decoration: InputDecoration(
+                        hoverColor: Colors.black,
                         hintText: 'Search...',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8.0),
