@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:uniflutterprot01/SettingsPage.dart';
 import 'HomePageUni.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -61,7 +62,6 @@ class _FindUniPageState extends State<FindUniPage> {
   Set<DateTime> _selectedDays = {};
   bool _isIconPressed = false;
 
-
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -72,23 +72,29 @@ class _FindUniPageState extends State<FindUniPage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => VideoPlayerApp()),
+              builder: (context) => VideoListScreen()),
         );
       }
-      if (index == 1) {
+      else if  (index == 1) {
         Navigator.push(
           context,
           MaterialPageRoute(
               builder: (context) => SearchPage(userId: widget.userId)),
         );
       }
-      if (index == 0) {
+      else if  (index == 0) {
         Navigator.push(
           context,
           MaterialPageRoute(
               builder: (context) => HomePageUni(userId: widget.userId)),
         );
-
+      }
+      else if  (index == 3) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => SettingsPage(userId: widget.userId)),
+        );
       }
     });
   }
@@ -141,10 +147,7 @@ class _FindUniPageState extends State<FindUniPage> {
     });
   }
 
-  void _onTime9Selected() {
-    setState(() {
-      _isTime9Selected = !_isTime9Selected;
-    });
+  void _onTime9Selected() {setState(() {_isTime9Selected = !_isTime9Selected;});
   }
 
   void _resetFilter() {
@@ -440,7 +443,6 @@ class _FindUniPageState extends State<FindUniPage> {
                     ),
                   ),
                 ),
-
                 SizedBox(height: 20),
                 Center(
                   child: Container(
@@ -656,8 +658,8 @@ class _FindUniPageState extends State<FindUniPage> {
                 label: 'Tutorials',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.bookmark),
-                label: 'Book',
+                icon: Icon(Icons.settings),
+                label: 'Setting',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.account_circle),
