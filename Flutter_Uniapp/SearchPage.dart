@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
+import 'package:uniflutterprot01/SettingsPage.dart';
 import 'FaqPage.dart';
 import 'SearchFilterPage.dart';
 import 'FindPageUni.dart';
@@ -43,70 +44,41 @@ class _SearchPageState extends State<SearchPage> {
   int _selectedIndex = 0;
   get userIdProfile => userIdProfile;
 
-  Widget _buildImageWithButton(String imageUrl, String country, String url) {
-    return Consumer<ThemeNotifier>(
-        builder: (context, themeNotifier, child) {
-      return Container(
-        width: 200,
-        height: 200,
-        child: Stack(
-          children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: EdgeInsets.only(top: 0.0, left: 5.0),
-                  height: 120,
-                  width: 200,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(15),
-                    child: Image.network(
-                      imageUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (BuildContext context, Object exception,
-                          StackTrace? stackTrace) {
-                        return Icon(Icons.error);
-                      },
-                    ),
-                  ),
-                ),
-                SizedBox(height: 0),
-                Text(
-                  country,
-                  style: TextStyle(
-                    color: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            Positioned(
-              bottom: 35,
-              left: 0,
-              right: 0,
-              child: SizedBox(
-                width: 10,
-                height: 35,
-                child: TextButton(
-                  onPressed: () {
-                    launchURL(url);
-                  },
-                  style: TextButton.styleFrom(
-                    backgroundColor:  themeNotifier.themeMode == ThemeMode.dark ? Colors.black : Colors.white,
-                    side: BorderSide(color: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black, width: 2),
-                  ),
-                  child: Text(
-                    'View Details',
-                    style: TextStyle(color: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,fontSize: 15),
-                  ),
-                ),
-              ),
-            ),
-          ],
+
+  Widget _buildImageWithButton(String imageUrl, String title, String url) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: EdgeInsets.only(top: 0), // Reduced top padding for image
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Image.network(imageUrl, height: 100,
+                width: 180), // Adjusted height for the image
+          ),
         ),
-      );
-    },
+        SizedBox(height: 2), // Space between image and button
+        ElevatedButton(
+          onPressed: () async {
+            if (await canLaunch(url)) {
+              await launch(url);
+            } else {
+              throw 'Could not launch $url';
+            }
+          },
+          style: ElevatedButton.styleFrom(
+            foregroundColor: Colors.white,
+            backgroundColor: Colors.black,
+            padding: EdgeInsets.symmetric(horizontal: 30, vertical: 5),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+          ),
+          child: Text("Learn More"),
+        ),
+        SizedBox(height: 2), // Space between button and text
+        Text(title),
+      ],
     );
   }
   Future<void> launchURL(String url) async {
@@ -119,28 +91,19 @@ class _SearchPageState extends State<SearchPage> {
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
-      if (index == 4) { // Account button index
-        _scaffoldKey.currentState?.openDrawer();
+      if (index == 4) { _scaffoldKey.currentState?.openDrawer();
       }
       else if (index == 2) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => VideoPlayerApp()),
-        );
+        Navigator.push(context, MaterialPageRoute(builder: (context) => VideoListScreen()),);
       }
-      if (index == 1) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => FindUniPage(userId: widget.userId)),
-        );
+      else if (index == 1) {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => FindUniPage(userId: widget.userId)),);
       }
-      if (index == 0) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => HomePageUni(userId: widget.userId)),
-        );
+      else if(index == 0) {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => HomePageUni(userId: widget.userId)),);
+      }
+      else if(index == 3) {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsPage(userId: widget.userId)),);
       }
     });
   }
@@ -161,9 +124,7 @@ class _SearchPageState extends State<SearchPage> {
       return Scaffold(
         key: _scaffoldKey,
         backgroundColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.black : Colors.white,
-        appBar: AppBar(
-          title: Text("Serach",
-            style: const TextStyle(color: Colors.white),
+        appBar: AppBar(title: Text("Serach", style: const TextStyle(color: Colors.white),
           ),
           backgroundColor: Colors.black,
           centerTitle: true,
@@ -171,22 +132,15 @@ class _SearchPageState extends State<SearchPage> {
             onPressed: () {
               Navigator.pop(context);
             },
-            icon: Icon(
-              Icons.arrow_back_ios,
-              size: 20.0,
-              color: Colors.white,
-            ),
+            icon: Icon(Icons.arrow_back_ios, size: 20.0, color: Colors.white,),
           ),
         ),
-
         body: ListView(
           padding: EdgeInsets.all(10),
           children: [
             Center(
               child: Container(
-                height: 320,
-                // Adjust height to accommodate the text fields and button
-                width: 420,
+                height: 320, width: 420,
                 // Set the desired width
                 decoration: BoxDecoration(
                   border: Border.all(color: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black, width: 2),
@@ -221,32 +175,57 @@ class _SearchPageState extends State<SearchPage> {
                             prefixIcon: Icon(Icons.public,color: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,),
                             // Icon for the first TextField
                             hintText: 'where are you studying abroad?',
-                            border: OutlineInputBorder(
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,width: 1.0),
                               borderRadius: BorderRadius.circular(25.0),
                             ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black, width: 1.0),
+                              borderRadius: BorderRadius.circular(20.0),
+                            ),
+                            focusColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
+                            fillColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
+                            hoverColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
                           ),
+                          style: TextStyle(color: Colors.black),
                         ),
                         SizedBox(height: 10), // Space between the TextFields
                         TextField(
                           decoration: InputDecoration(
                             prefixIcon: Icon(Icons.calendar_month,color:  themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,),
-                            // Icon for the second TextField
                             hintText: 'Programe start date-Programe end date',
-                            border: OutlineInputBorder(
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black, width: 1.0),
                               borderRadius: BorderRadius.circular(25.0),
                             ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                              borderSide: BorderSide(color: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black, width: 1.0)
+                            ),
+                            focusColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
+                            hoverColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
+                            fillColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
                           ),
+                          style: TextStyle(color: Colors.black),
                         ),
                         SizedBox(height: 10), // Space between the TextFields
                         TextField(
                           decoration: InputDecoration(
                             prefixIcon: Icon(Icons.school,color:  themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,),
-                            // Icon for the third TextField
                             hintText: 'Number of courses-Number of classmates',
-                            border: OutlineInputBorder(
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black, width: 1.0),
                               borderRadius: BorderRadius.circular(25.0),
                             ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black, width: 1.0),
+                              borderRadius: BorderRadius.circular(20.0),
+                            ),
+                            fillColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
+                            focusColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
+                            hoverColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
                           ),
+                          style: TextStyle(color: Colors.black),
                         ),
                         SizedBox(height: 10),
 // Space between the TextFields and the button
@@ -279,7 +258,6 @@ class _SearchPageState extends State<SearchPage> {
                 ),
               ),
             ),
-
             SizedBox(height: 10,),
             Text(
               "Top University",
@@ -288,73 +266,8 @@ class _SearchPageState extends State<SearchPage> {
                 fontWeight: FontWeight.w600,
                 fontSize: 18.0,
               ),
-            ), Center(
-              child: Container(
-                height: 350,
-                width: 420,
-                decoration: BoxDecoration(
-                  border: Border.all(color: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black, width: 2),
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: 2,
-                      blurRadius: 5,
-                      offset: Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Card(
-                  color: themeNotifier.themeMode == ThemeMode.dark ? Colors.black : Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.only(top: 0.0),
-                    child: Column(
-                      children: [
-                        Expanded(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              _buildImageWithButton(
-                                'https://syfer001testing.000webhostapp.com/cloneapi/savefile/UsaSearchPg.jpg',
-                                'USA',
-                                'https://www.usnews.com/best-colleges/rankings/national-universities',
-                              ),
-                              _buildImageWithButton(
-                                'https://syfer001testing.000webhostapp.com/cloneapi/savefile/AustraliaSearchPg.png',
-                                'Australia',
-                                'https://www.usnews.com/education/best-global-universities/australia-new-zealand',
-                              ),
-                            ],
-                          ),
-                        ),
-                        Expanded(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              _buildImageWithButton(
-                                'https://syfer001testing.000webhostapp.com/cloneapi/savefile/UkSearchPg.jpg',
-                                'UK',
-                                'https://www.usnews.com/education/best-global-universities/united-kingdom',
-                              ),
-                              _buildImageWithButton(
-                                'https://syfer001testing.000webhostapp.com/cloneapi/savefile/CanadaSearchPg.jpg',
-                                'Canada',
-                                'https://www.usnews.com/education/best-global-universities/slideshows/see-the-top-10-universities-in-canada',
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
             ),
-            SizedBox(height: 10,),
+
             Center(
               child: Container(
                 height: 240, // Set the desired height
@@ -707,8 +620,8 @@ class _SearchPageState extends State<SearchPage> {
               label: 'Tutorials',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.bookmark),
-              label: 'Book',
+              icon: Icon(Icons.settings),
+              label: 'Setting',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.account_circle),
