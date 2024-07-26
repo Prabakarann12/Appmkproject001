@@ -4,7 +4,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:http/http.dart' as http;
-import 'package:path/path.dart' as path;
 import 'package:permission_handler/permission_handler.dart';
 
 import 'ThemeNotifier.dart';
@@ -33,9 +32,6 @@ Future<void> _requestPermission() async {
     // Permission denied, handle it accordingly
   }
 }
-
-
-
 class Visadoctoolpage extends StatefulWidget {
   @override
   _Visadoctoolpage createState() => _Visadoctoolpage();
@@ -67,69 +63,74 @@ class _Visadoctoolpage extends State<Visadoctoolpage> {
 
   Widget _buildVisaDocumentLinkCard() {
     return Consumer<ThemeNotifier>(
-        builder: (context, themeNotifier, child)
-    {
-      return Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
-        elevation: 5,
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-               Text(
-                "Link Visa Document",
-                style: TextStyle(color:themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 23.0),
-              ),
-              const SizedBox(height: 15),
-              TextFormField(
-                onChanged: (value) {
-                  setState(() {
-                    _visaDocumentUrl = value;
-                  });
-                },
-                decoration: const InputDecoration(
-                  labelText: 'Enter URL for study plan',
-                  border: OutlineInputBorder(),
+      builder: (context, themeNotifier, child) {
+        return Card(
+          color: themeNotifier.themeMode == ThemeMode.dark ? Colors.black : Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          elevation: 5,
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Link Visa Document",
+                  style: TextStyle(
+                      color: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 23.0),
                 ),
-              ),
-              const SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: _linkVisaDocument,
-                child:  Text(
-                  'Submit',
-                  style: TextStyle(color:themeNotifier.themeMode == ThemeMode.dark ? Colors.black : Colors.white,),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor:themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
-                  minimumSize: const Size(double.infinity, 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                const SizedBox(height: 15),
+                TextFormField(
+                  onChanged: (value) {
+                    setState(() {
+                      _visaDocumentUrl = value;
+                    });
+                  },
+                  decoration: const InputDecoration(
+                    hoverColor: Colors.black,
+                    labelText: 'Enter URL for study plan',
+                    border: OutlineInputBorder(
+
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 20),
-               Text(
-                "Accepted File type: PDF, JPG, or provide a URL",
-                style: TextStyle(color:themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,),
-              ),
-              const SizedBox(height: 20),
-              LinearProgressIndicator(
-                value: _uploadProgress1,
-                backgroundColor: Colors.grey[300],
-                color: Colors.blue,
-              ),
-            ],
+                const SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: _linkVisaDocument,
+                  child: Text(
+                    'Submit',
+                    style: TextStyle(
+                      color: themeNotifier.themeMode == ThemeMode.dark ? Colors.black : Colors.white,),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,
+                    minimumSize: const Size(double.infinity, 50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  "Accepted File type: PDF, JPG, or provide a URL",
+                  style: TextStyle(
+                    color: themeNotifier.themeMode == ThemeMode.dark ? Colors.white : Colors.black,),
+                ),
+                const SizedBox(height: 20),
+                LinearProgressIndicator(
+                  value: _uploadProgress1,
+                  backgroundColor: Colors.grey[300],
+                  color: Colors.blue,
+                ),
+              ],
+            ),
           ),
-        ),
-      );
-    },
+        );
+      },
     );
-
   }
 
   Future<void> _pickDocument() async {
@@ -189,10 +190,7 @@ class _Visadoctoolpage extends State<Visadoctoolpage> {
             SnackBar(content: Text('Failed to submit file')),
           );
         }
-      } catch (e) {
-
-
-      }
+      } catch (e) { }
     } else {
       print('No file selected');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -247,15 +245,27 @@ class _Visadoctoolpage extends State<Visadoctoolpage> {
         builder: (context, themeNotifier, child)
     {
       return Scaffold(
+        backgroundColor: themeNotifier.themeMode == ThemeMode.dark ? Colors.black: Colors.white,
         appBar: AppBar(
           title: const Text(
-            "App Logo",
+            "Visa document",
             style: TextStyle(
-              color: Colors.black,
+              color: Colors.white,
               fontWeight: FontWeight.bold,
             ),
           ),
-          backgroundColor: Colors.white,
+          backgroundColor: Colors.black,
+          centerTitle: true,
+          leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: Icon(
+              Icons.arrow_back_ios,
+              size: 20.0,
+              color: Colors.white,
+            ),
+          ),
           actions: <Widget>[
             IconButton(
               icon: const Icon(Icons.notifications, color: Colors.black),
@@ -413,6 +423,7 @@ class _Visadoctoolpage extends State<Visadoctoolpage> {
                   ),
                 ),
                 Card(
+                  color: themeNotifier.themeMode == ThemeMode.dark ? Colors.black : Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
@@ -474,6 +485,7 @@ class _Visadoctoolpage extends State<Visadoctoolpage> {
             ),
           ),
         ),
+
         bottomNavigationBar: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           currentIndex: _selectedIndex,
@@ -500,14 +512,12 @@ class _Visadoctoolpage extends State<Visadoctoolpage> {
               icon: Icon(Icons.message_rounded),
               label: '',
             ),
-
             BottomNavigationBarItem(
               icon: Icon(Icons.person),
               label: '',
             ),
           ],
         ),
-
       );
     },
     );
