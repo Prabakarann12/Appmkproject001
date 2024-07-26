@@ -1,19 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'HomePageUni.dart';
 import 'RegisterPage.dart';
+import 'ThemeNotifier.dart';
 import 'forgotpwPage.dart';
+import 'package:flutter/services.dart';
+
 
 void main() {
-  runApp(const MainApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => ThemeNotifier(),
+      child: MainApp(),
+    ),
+  );
 }
 
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -31,53 +38,40 @@ class _SignInPageState extends State<SignInPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   bool _isLoading = false;
-  String _errorMessage = '';
   bool obscureText = true;
-
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-  FlutterLocalNotificationsPlugin();
 
   @override
   void initState() {
     super.initState();
-    var initializationSettingsAndroid =
-    AndroidInitializationSettings('@mipmap/ic_launcher');
-    var initializationSettings =
-    InitializationSettings(android: initializationSettingsAndroid);
-    flutterLocalNotificationsPlugin.initialize(initializationSettings);
+    _checkLoggedIn();
   }
 
-  Future<void> _showNotification() async {
-    var androidPlatformChannelSpecifics = AndroidNotificationDetails(
-      'your_channel_id',
-      'your_channel_name',
-      channelDescription: 'your_channel_description',
-      importance: Importance.max,
-      priority: Priority.high,
-      ticker: 'ticker',
-    );
-    var platformChannelSpecifics =
-    NotificationDetails(android: androidPlatformChannelSpecifics);
-    await flutterLocalNotificationsPlugin.show(
-      0,
-      'Welcome',
-      'Welcome to UniStudy',
-      platformChannelSpecifics,
-      payload: 'item x',
-    );
+
+  Future<void> _checkLoggedIn() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int? userId = prefs.getInt('userId');
+    if (userId != null) {
+      // If userId is stored, navigate to HomePageUni
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomePageUni(userId: userId)),
+      );
+    }
   }
   void _showErrorDialog(String message) {
-
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Error',style: TextStyle(color: Colors.black),),
+          title: Text(
+            'Error',
+            style: TextStyle(color: Colors.black),
+          ),
           backgroundColor: Colors.white,
           content: Text(message),
           actions: <Widget>[
             TextButton(
-              child: Text('OK',style: TextStyle(color: Colors.black),),
+              child: Text('OK', style: TextStyle(color: Colors.black),),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -100,13 +94,14 @@ class _SignInPageState extends State<SignInPage> {
     }
     setState(() {
       _isLoading = true;
-      _errorMessage = '';
     });
 
     String url =
-        "https://syfer001testing.000webhostapp.com/cloneapi/loginflutterreturnid.php";
+        "https://syfer001testing.000webhostapp.com/cloneapi/Alphaapi.php";
+      //https://syfer001testing.000webhostapp.com/cloneapi/loginflutterreturnid.php
 
     final Map<String, dynamic> queryParams = {
+      "requestby" : "Logindata",
       "email": emailController.text,
       "password": passwordController.text,
     };
@@ -118,15 +113,18 @@ class _SignInPageState extends State<SignInPage> {
         var user = jsonDecode(response.body);
         if (user['success']) {
           final userIdProfile = user['userId'];
+
+          // Save userId to shared preferences
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setInt('userId', userIdProfile);
+
           emailController.clear();
           passwordController.clear();
           // Show notification
-          await _showNotification();
           // Navigate to the Homepage if login is successful
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
-            MaterialPageRoute(
-                builder: (context) => HomePageUni(userId: userIdProfile)),
+            MaterialPageRoute(builder: (context) => HomePageUni(userId: userIdProfile)),
           );
           _clearFormFields();
         } else {
@@ -187,7 +185,10 @@ class _SignInPageState extends State<SignInPage> {
               SizedBox(height: 8),
               Text(
                 "Login",
-                style: TextStyle(fontSize: 35.0, fontWeight: FontWeight.bold,color: Colors.black),
+                style: TextStyle(
+                    fontSize: 35.0,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black),
                 textAlign: TextAlign.left,
               ),
               SizedBox(height: 10.0),
@@ -199,35 +200,61 @@ class _SignInPageState extends State<SignInPage> {
               ),
               SizedBox(height: 30.0),
               TextField(
-
                 controller: emailController,
                 decoration: InputDecoration(
                   labelText: "Email",
-                  border: OutlineInputBorder(
+                  labelStyle: TextStyle(color: Colors.black),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide:
+                    BorderSide(color: Colors.black, width: 1.0),
                     borderRadius: BorderRadius.circular(25.0),
                   ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide:
+                    BorderSide(color: Colors.black, width: 1.0),
+                    borderRadius: BorderRadius.circular(25.0),
+                  ),
+                  fillColor: Colors.black,
+                  focusColor: Colors.black,
+                  hoverColor: Colors.black,
                 ),
                 style: TextStyle(color: Colors.black),
               ),
-              SizedBox(height: 20.0),
+
+              SizedBox(height: 30.0),
               TextField(
                 controller: passwordController,
                 obscureText: obscureText,
                 decoration: InputDecoration(
                   labelText: "Password",
+                  labelStyle: TextStyle(color: Colors.black),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide:
+                    BorderSide(color: Colors.black, width: 1.0),
+                    borderRadius: BorderRadius.circular(25.0),
+                  ),
                   suffixIcon: IconButton(
                     icon: Icon(
-                      obscureText ? Icons.visibility : Icons.visibility_off,color: Colors.grey,
+                      obscureText
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                      color: Colors.black,
                     ),
                     onPressed: () {
                       setState(() {
                         obscureText = !obscureText;
                       });
+
                     },
                   ),
-                  border: OutlineInputBorder(
+                  focusedBorder: OutlineInputBorder(
+                    borderSide:
+                    BorderSide(color: Colors.black, width: 1.0),
                     borderRadius: BorderRadius.circular(25.0),
                   ),
+                  fillColor: Colors.black,
+                  focusColor: Colors.black,
+                  hoverColor: Colors.black,
                 ),
                 style: TextStyle(color: Colors.black),
               ),
@@ -237,7 +264,8 @@ class _SignInPageState extends State<SignInPage> {
                   // Handle forgot password action
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => ForgotPasswordPage()),
+                    MaterialPageRoute(
+                        builder: (context) => ForgotPasswordPage()),
                   );
                 },
                 child: Text(
@@ -250,10 +278,12 @@ class _SignInPageState extends State<SignInPage> {
               ),
               SizedBox(height: 30.0),
               _isLoading
-                  ? Center(child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
-              ))
-
+                  ? Center(
+                child: CircularProgressIndicator(
+                  valueColor:
+                  AlwaysStoppedAnimation<Color>(Colors.black),
+                ),
+              )
                   : MaterialButton(
                 minWidth: double.infinity,
                 height: 50,
@@ -262,14 +292,7 @@ class _SignInPageState extends State<SignInPage> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20.0),
                 ),
-                child: Text(
-                  "Login",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 18.0,
-                  ),
-                ),
+                child: Text("Login", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 18.0,),),
               ),
               SizedBox(height: 30.0),
               Row(
@@ -285,14 +308,7 @@ class _SignInPageState extends State<SignInPage> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20.0),
                       ),
-                      child: Text(
-                        "Google",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 18.0,
-                        ),
-                      ),
+                      child: Text("Google", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 18.0,)),
                     ),
                   ),
                   SizedBox(width: 20.0),
@@ -330,7 +346,8 @@ class _SignInPageState extends State<SignInPage> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => RegisterPage()),
+                    MaterialPageRoute(
+                        builder: (context) => RegisterPage()),
                   );
                 },
                 color: Colors.black,
