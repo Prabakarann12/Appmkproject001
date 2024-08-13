@@ -29,32 +29,31 @@ class _PropertyDetailsPage2State extends State<PropertyDetailsPage2> {
   bool _isSending = false;
   String _statusMessage = '';
   String? amenityLabel;
-  late String seoRental; // Declare the variable to store SEO_rental
+  late String seoRental;
   late Map<DateTime, List> _events;
   List<DateTime> _selectedDates = [];
   List<DateTime> _unavailableDates = [];
   List<DateTime> _availableDates = [];
   DateTime _focusedDay = DateTime.now();
-  late Set<DateTime> _bookedDates;
+  Set<DateTime> _bookedDates = {};
+  String availabilityLabel = '';
+  String rentalRateLabel = '';
+
 
   @override
   void initState() {
     super.initState();
-    seoRental = widget.property['SEO_rental']; // Store the value
+    seoRental = widget.property['SEO_rental'];
     _fetchPropertyDetails(seoRental);
     _focusedDay = DateTime.now();
-    _bookedDates = {
-      DateTime(2024, 8, 10),
-      DateTime(2024, 8, 15),
-      DateTime(2024, 8, 16),
-      DateTime(2024, 8, 17),
-    };
+    _bookedDates = {}; // Initialize the map here
   }
+
 
   Future<void> _fetchPropertyDetails(String seoRental) async {
     final url = 'http://api-alpha.square1server.com/api/getrental1';
     final Map<String, String> queryParams = {
-      "SEO_rental": seoRental, // Use the variable here
+      "SEO_rental": seoRental,
     };
     final Uri uri = Uri.parse(url).replace(queryParameters: queryParams);
 
@@ -69,6 +68,22 @@ class _PropertyDetailsPage2State extends State<PropertyDetailsPage2> {
         setState(() {
           amenityLabel = amenitiesString;
         });
+
+        // Update _bookedDates
+        final List<dynamic> availabilityList = data['availability'][0]['dates'];
+        final Set<DateTime> newBookedDates = {};
+
+        for (var availability in availabilityList) {
+          final checkInDate = availability['CheckInDate'];
+          final checkOutDate = availability['CheckOutDate'];
+          final List<DateTime> datesInRange = _getDatesBetween(checkInDate, checkOutDate);
+          newBookedDates.addAll(datesInRange);
+        }
+
+        setState(() {
+          _bookedDates = newBookedDates; // Update booked dates
+          // Handle other data
+        });
       } else {
         print('Failed to load data: ${response.statusCode}');
         _showDialog(context, "Error", "Failed to load data: ${response.statusCode}");
@@ -79,7 +94,7 @@ class _PropertyDetailsPage2State extends State<PropertyDetailsPage2> {
     }
   }
 
-  // Helper method to show a dialog
+
   void _showDialog(BuildContext context, String title, String message) {
     showDialog(
       context: context,
@@ -98,6 +113,17 @@ class _PropertyDetailsPage2State extends State<PropertyDetailsPage2> {
         );
       },
     );
+  }
+  List<DateTime> _getDatesBetween(String checkIn, String checkOut) {
+    DateTime checkInDate = DateTime.parse(checkIn);
+    DateTime checkOutDate = DateTime.parse(checkOut);
+    List<DateTime> dates = [];
+
+    for (int i = 0; i <= checkOutDate.difference(checkInDate).inDays; i++) {
+      dates.add(checkInDate.add(Duration(days: i)));
+    }
+
+    return dates;
   }
   @override
   void dispose() {
@@ -132,7 +158,7 @@ class _PropertyDetailsPage2State extends State<PropertyDetailsPage2> {
       });
 
       var userEmail = 'prabakarann1298@gmail.com'; // Your email
-      var password = ''; // Your email app password
+      var password = 'jywrqugbvxyyvgtl'; // Your email app password
 
       final smtpServer = gmail(userEmail, password);
 
@@ -231,46 +257,61 @@ class _PropertyDetailsPage2State extends State<PropertyDetailsPage2> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              SizedBox(height: 16.0),
-              Text(
-                'Location: ${widget.property['city'] ?? 'N/A'}',
-                style: TextStyle(fontSize: 16),
-              ),
+
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'Bed: ${widget.property['bedroom'] ?? 'N/A'}',
-                      style: TextStyle(fontSize: 16),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          '${widget.property['bedroom'] ?? 'N/A'}',
+                          style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          'Bed(S)',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ],
                     ),
                     SizedBox(width: 8.0),
-                    Text(
-                      'Bath: ${widget.property['bathroom'] ?? 'N/A'}',
-                      style: TextStyle(fontSize: 16),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          '${widget.property['bathroom'] ?? 'N/A'}',
+                          style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          'Bath(S)',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ],
                     ),
                     SizedBox(width: 8.0),
-                    Text(
-                      'Sleeps up to: ${widget.property['sleepupto'] ?? 'N/A'}',
-                      style: TextStyle(fontSize: 16),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          '${widget.property['sleepupto'] ?? 'N/A'}',
+                          style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          'Sleep Upto',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
-              SizedBox(height: 8.0),
-              Text(
-                'SEO Rental: ${widget.property['SEO_rental'] ?? 'N/A'}',
-                style: TextStyle(fontSize: 16),
-              ),
-              SizedBox(height: 8.0),
-              Text(
-                'Pets: ${widget.property['pets'] ?? 'N/A'}',
-                style: TextStyle(fontSize: 16),
-              ),
               SizedBox(height: 16.0),
+              Text('Description:',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),
+              SizedBox(height: 6.0),
               ReadMoreText(
-                'Description: ${widget.property['propertydesc'] ?? 'N/A'}',
+                widget.property['propertydesc'] ?? 'N/A',
                 trimLines: 3,
                 colorClickableText: Colors.blue,
                 trimMode: TrimMode.Line,
@@ -288,17 +329,24 @@ class _PropertyDetailsPage2State extends State<PropertyDetailsPage2> {
                 children: [
                   Expanded(
                     child: Wrap(
-                      spacing: 8.0, // Horizontal spacing between lines
-                      runSpacing: 4.0, // Vertical spacing between lines
+                      spacing: 8.0, // Horizontal spacing between items
+                      runSpacing: 4.0, // Vertical spacing between items
                       children: [
                         for (var i = 0; i < (amenityLabel?.split(', ') ?? []).length / 2; i++)
                           Container(
                             constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.45),
-                            child: Text(
-                              (amenityLabel?.split(', ') ?? [])[i],
-                              style: TextStyle(fontSize: 16),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 3, // Limit to 3 lines
+                            child: Row(
+                              children: [
+                                Text('• ', style: TextStyle(fontSize: 16)), // Bullet point
+                                Expanded(
+                                  child: Text(
+                                    (amenityLabel?.split(', ') ?? [])[i],
+                                    style: TextStyle(fontSize: 16),
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 3, // Limit to 3 lines
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                       ],
@@ -307,17 +355,24 @@ class _PropertyDetailsPage2State extends State<PropertyDetailsPage2> {
                   SizedBox(width: 8.0), // Space between the two columns
                   Expanded(
                     child: Wrap(
-                      spacing: 8.0, // Horizontal spacing between lines
-                      runSpacing: 4.0, // Vertical spacing between lines
+                      spacing: 8.0, // Horizontal spacing between items
+                      runSpacing: 4.0, // Vertical spacing between items
                       children: [
                         for (var i = (amenityLabel?.split(', ') ?? []).length ~/ 2; i < (amenityLabel?.split(', ') ?? []).length; i++)
                           Container(
                             constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.45),
-                            child: Text(
-                              (amenityLabel?.split(', ') ?? [])[i],
-                              style: TextStyle(fontSize: 16),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 3, // Limit to 3 lines
+                            child: Row(
+                              children: [
+                                Text('• ', style: TextStyle(fontSize: 16)), // Bullet point
+                                Expanded(
+                                  child: Text(
+                                    (amenityLabel?.split(', ') ?? [])[i],
+                                    style: TextStyle(fontSize: 16),
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 3, // Limit to 3 lines
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                       ],
@@ -336,36 +391,70 @@ class _PropertyDetailsPage2State extends State<PropertyDetailsPage2> {
                   ),
                   property: {
                     'imgPreview': widget.property['imgPreview'] ?? '',
-                    'Address': widget.property['city'] ?? 'Unknown Address',
-                    'Type': widget.property['propertytype'] ?? 'Unknown Type',
+                    'city': widget.property['city'] ?? 'Unknown Address',
+                    'propertytype': widget.property['propertytype'] ?? 'Unknown Type',
                   },
                 ),
               ),
               SizedBox(height: 16),
-              // Date Available Picker
+              Card(
+                color: Colors.indigo[900],
+                elevation: 4.0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(12.0),
+                  child: Row(
+                    children: [
+                      Text(
+                        'available = ',
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,color: Colors.white),
+                      ),
+                      Container(
+                        width: 18.0,
+                        height: 18.0,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.black), // Optional border for visibility
+                        ),
+                      ),
+                      SizedBox(width: 8.0),
+                      Text(
+                        'Unavailable = ',
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,color: Colors.white),
+                      ),
+                      Container(
+                        width: 18.0,
+                        height: 18.0,
+                        decoration: BoxDecoration(
+                          color: Colors.grey,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: 16),
               Text(
                 'Select Dates:',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 8),
+              SizedBox(height: 6),
               TableCalendar(
                 firstDay: DateTime(2024),
-                lastDay: DateTime(2026),
+                lastDay: DateTime(2025),
                 focusedDay: _focusedDay,
                 selectedDayPredicate: (day) {
                   return _selectedDates.any((selectedDay) => isSameDay(day, selectedDay));
-                },
-                enabledDayPredicate: (day) {
-                  return !(_unavailableDates.any((unavailableDay) => isSameDay(day, unavailableDay)) ||
-                      _bookedDates.any((bookedDay) => isSameDay(day, bookedDay)) ||
-                      day.isBefore(DateTime.now().subtract(Duration(days: 1))));
                 },
                 onDaySelected: (selectedDay, focusedDay) {
                   if (_unavailableDates.any((unavailableDay) => isSameDay(selectedDay, unavailableDay)) ||
                       _bookedDates.any((bookedDay) => isSameDay(selectedDay, bookedDay))) {
                     return;
                   }
-
                   setState(() {
                     _focusedDay = focusedDay;
 
@@ -383,7 +472,7 @@ class _PropertyDetailsPage2State extends State<PropertyDetailsPage2> {
                     shape: BoxShape.circle,
                   ),
                   defaultDecoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Colors.grey, // Set all other dates to grey circles
                     shape: BoxShape.circle,
                   ),
                   disabledDecoration: BoxDecoration(
@@ -401,12 +490,12 @@ class _PropertyDetailsPage2State extends State<PropertyDetailsPage2> {
                         margin: const EdgeInsets.all(4.0),
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          color: Colors.black,
+                          color: Colors.white, // Change black circle to white
                           shape: BoxShape.circle,
                         ),
                         child: Text(
                           day.day.toString(),
-                          style: TextStyle(color: Colors.white),
+                          style: TextStyle(color: Colors.black), // Change text color to black for visibility
                         ),
                       );
                     } else if (_unavailableDates.any((unavailableDay) => isSameDay(day, unavailableDay))) {
@@ -414,12 +503,12 @@ class _PropertyDetailsPage2State extends State<PropertyDetailsPage2> {
                         margin: const EdgeInsets.all(4.0),
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          color: Colors.grey,
+                          color: Colors.white,
                           shape: BoxShape.circle,
                         ),
                         child: Text(
                           day.day.toString(),
-                          style: TextStyle(color: Colors.white),
+                          style: TextStyle(color: Colors.grey),
                         ),
                       );
                     } else if (_availableDates.any((availableDay) => isSameDay(day, availableDay))) {
@@ -436,32 +525,23 @@ class _PropertyDetailsPage2State extends State<PropertyDetailsPage2> {
                         ),
                       );
                     }
-                    return null;
+                    return Container(
+                      margin: const EdgeInsets.all(4.0),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: Colors.grey, // Grey circle for all other dates
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        day.day.toString(),
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    );
                   },
                 ),
               ),
-              SizedBox(height: 16),
-              // Display selected dates
-              Text(
-                'Selected Dates:',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              Wrap(
-                children: _selectedDates
-                    .map((date) => Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: Chip(
-                    backgroundColor: Colors.green,
-                    label: Text(
-                      '${date.day}/${date.month}/${date.year}',
-                    ),
-                    labelStyle: TextStyle(color: Colors.white),
 
-                  ),
-                ))
-                    .toList(),
-              ),
-              SizedBox(height: 10),
+              SizedBox(height: 20),
               SizedBox(
                 child: Card(
                   color: Colors.grey[300], // Set the card color to gray
@@ -481,8 +561,8 @@ class _PropertyDetailsPage2State extends State<PropertyDetailsPage2> {
                           Text('Request Information', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold,),textAlign: TextAlign.center,),
                           SizedBox(height: 10,),
                           Text(
-                            widget.property['propertyheadline'] ?? 'Property Headline',
-                            style: TextStyle(color: Colors.black , fontSize: 20, fontStyle:FontStyle.italic),textAlign: TextAlign.center),
+                              widget.property['propertyheadline'] ?? 'Property Headline',
+                              style: TextStyle(color: Colors.black , fontSize: 20, fontStyle:FontStyle.italic),textAlign: TextAlign.center),
                           SizedBox(height: 25),
                           TextFormField(
                             controller: _firstNameController,
@@ -631,6 +711,22 @@ class _PropertyDetailsPage2State extends State<PropertyDetailsPage2> {
                       ),
                     ),
                   ),
+                ),
+              ),
+              SizedBox(height: 16),
+              Card(
+                color: Colors.indigo[900],
+                elevation: 4.0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(12.0),
+                  child:
+                      Text(
+                        'The information contained in this website does not serve as a substitute for an on-site visit to the vacation rental unit and should not be relied upon solely in the decision to rent the vacation unit. Coldwell Banker Sol Needles Real Estate makes no warranty of the accuracy of the information on this site or any site to which we link.',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal,color: Colors.white),
+                      ),
                 ),
               ),
             ],
