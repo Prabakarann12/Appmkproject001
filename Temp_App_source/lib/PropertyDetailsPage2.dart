@@ -132,7 +132,7 @@ class _PropertyDetailsPage2State extends State<PropertyDetailsPage2> {
       });
 
       var userEmail = 'prabakarann1298@gmail.com'; // Your email
-      var password = 'jywrqugbvxyyvgtl'; // Your email app password
+      var password = ''; // Your email app password
 
       final smtpServer = gmail(userEmail, password);
 
