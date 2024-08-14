@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
-import 'main.dart';
 import 'package:readmore/readmore.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:mailer/mailer.dart';
@@ -38,6 +37,7 @@ class _PropertyDetailsPage2State extends State<PropertyDetailsPage2> {
   Set<DateTime> _bookedDates = {};
   String availabilityLabel = '';
   String rentalRateLabel = '';
+  List<Map<String, dynamic>> rentalRates = [];
 
 
   @override
@@ -68,8 +68,17 @@ class _PropertyDetailsPage2State extends State<PropertyDetailsPage2> {
         setState(() {
           amenityLabel = amenitiesString;
         });
-
-        // Update _bookedDates
+        final List<dynamic> rentalRatesList = data['rentalRates'];
+        setState(() {
+          rentalRates = rentalRatesList.map((rate) {
+            return {
+              'Description': rate['Description'] ?? 'N/A',
+              'Rate': rate['Rate'] ?? 'N/A',
+              'CheckInDate': rate['CheckInDate'] ?? 'N/A',
+              'CheckOutDate': rate['CheckOutDate'] ?? 'N/A',
+            };
+          }).toList();
+        });
         final List<dynamic> availabilityList = data['availability'][0]['dates'];
         final Set<DateTime> newBookedDates = {};
 
@@ -154,11 +163,10 @@ class _PropertyDetailsPage2State extends State<PropertyDetailsPage2> {
     try {
       setState(() {
         _isSending = true;
-        _statusMessage = '';
       });
 
-      var userEmail = 'prabakarann1298@gmail.com'; // Your email
-      var password = ''; // Your email app password
+      var userEmail = 'prabakarann1298@gmail.com';
+      var password = 'jywrqugbvxyyvgtl';
 
       final smtpServer = gmail(userEmail, password);
 
@@ -180,6 +188,11 @@ class _PropertyDetailsPage2State extends State<PropertyDetailsPage2> {
 
       setState(() {
         _statusMessage = 'Email sent successfully';
+        _firstNameController.clear();
+        _lastNameController.clear();
+        _emailController.clear();
+        _phoneController.clear();
+        _questionText.clear();
       });
     } catch (e) {
       setState(() {
@@ -203,10 +216,7 @@ class _PropertyDetailsPage2State extends State<PropertyDetailsPage2> {
         title: Text(widget.property['propertyname'] ?? 'Property Details'),
         leading: IconButton(
           onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => MainApp()),
-            );
+            Navigator.pop(context);
           },
           icon: const Icon(
             Icons.arrow_back_ios,
@@ -466,7 +476,7 @@ class _PropertyDetailsPage2State extends State<PropertyDetailsPage2> {
                   });
                 },
                 calendarStyle: CalendarStyle(
-                  isTodayHighlighted: true,
+                  isTodayHighlighted: false,
                   selectedDecoration: BoxDecoration(
                     color: Colors.blue,
                     shape: BoxShape.circle,
@@ -539,9 +549,42 @@ class _PropertyDetailsPage2State extends State<PropertyDetailsPage2> {
                     );
                   },
                 ),
+                headerStyle: HeaderStyle(
+                  formatButtonVisible: false, // Hide the format button
+                  titleCentered: true, // Center the title (month and year)
+                  formatButtonShowsNext: false, // Keep the view in month format only
+                ),
               ),
 
-              SizedBox(height: 20),
+              SizedBox(height: 16),
+              Text(
+                'Rate Information:',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black, width: 2.0),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: DataTable(
+                    columns: [
+                      DataColumn(label: Text('Description')),
+                      DataColumn(label: Text('Rate')),
+                      DataColumn(label: Text('CheckIn - CheckOut')),
+                    ],
+                    rows: rentalRates.map((rate) {
+                      return DataRow(cells: [
+                        DataCell(Text(rate['Description'])),
+                        DataCell(Text('\$${rate['Rate']}')),
+                        DataCell(Text('${rate['CheckInDate']} - ${rate['CheckOutDate']}')),
+                      ]);
+                    }).toList(),
+                  ),
+                ),
+              ),
+              SizedBox(height: 40),
               SizedBox(
                 child: Card(
                   color: Colors.grey[300], // Set the card color to gray
@@ -549,7 +592,6 @@ class _PropertyDetailsPage2State extends State<PropertyDetailsPage2> {
                     borderRadius: BorderRadius.circular(20), // Set the border radius for the card
                   ),
                   elevation: 4,
-
                   child: Padding(
                     padding: const EdgeInsets.all(16.0), // Add padding inside the card
                     child: Form(
@@ -558,11 +600,19 @@ class _PropertyDetailsPage2State extends State<PropertyDetailsPage2> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: <Widget>[
                           SizedBox(height: 10),
-                          Text('Request Information', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold,),textAlign: TextAlign.center,),
-                          SizedBox(height: 10,),
                           Text(
-                              widget.property['propertyheadline'] ?? 'Property Headline',
-                              style: TextStyle(color: Colors.black , fontSize: 20, fontStyle:FontStyle.italic),textAlign: TextAlign.center),
+                            'Request Information',
+                            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(height: 10),
+                          Text(
+                            widget.property['propertyheadline'] ?? 'Property Headline',
+                            style: TextStyle(color: Colors.black, fontSize: 20, fontStyle: FontStyle.italic),
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(height: 25),
+                          // Form fields go here
                           SizedBox(height: 25),
                           TextFormField(
                             controller: _firstNameController,
@@ -673,7 +723,7 @@ class _PropertyDetailsPage2State extends State<PropertyDetailsPage2> {
                           TextFormField(
                             controller: _questionText,
                             decoration: InputDecoration(
-                                labelText: 'include Any Questin and Answer Here',
+                                labelText: 'include Any Question and Answer Here',
                                 labelStyle: TextStyle(color: Colors.black),
                                 enabledBorder: OutlineInputBorder(
                                   borderSide: BorderSide(color: Colors.black),
@@ -690,7 +740,7 @@ class _PropertyDetailsPage2State extends State<PropertyDetailsPage2> {
                             keyboardType: TextInputType.text,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Please enter your phone number';
+                                return 'Please enter your Any Question and Answer Here';
                               }
                               return null;
                             },
