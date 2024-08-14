@@ -1,7 +1,7 @@
 import 'dart:convert';
+import 'package:coldwellbanker_re/sales.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'PropertyDetailsPage1.dart';
 import 'PropertyDetailsPage2.dart';
 import 'allRentalsPage.dart';
 
@@ -72,8 +72,8 @@ class _MainPageState extends State<MainPage> {
   void initState() {
     super.initState();
     _autoshowdata();
-    _propertyIdCon.addListener(_fetchData);
-    _streetName.addListener(_fetchData);
+    _propertyIdCon.addListener(_onSearchTextChanged);
+    _streetName.addListener(_onSearchTextChanged);
   }
 
   void _selectDate(BuildContext context) async {
@@ -122,15 +122,14 @@ class _MainPageState extends State<MainPage> {
       });
     }
   }
-  Future<void> _optionFetch() async {
-    setState(() {
-      _showFields = !_showFields;
-    });
-    await _fetchData();
+  void _onSearchTextChanged() {
+    if (_propertyIdCon.text.isNotEmpty || _streetName.text.isNotEmpty) {
+      _fetchData();
+    }
   }
 
   Future<void> _fetchData() async {
-    if (_propertyIdCon.text.isEmpty || _streetName.text.isEmpty) {
+    if (_propertyIdCon.text.isEmpty && _streetName.text.isEmpty) {
       return;
     }
 
@@ -170,6 +169,12 @@ class _MainPageState extends State<MainPage> {
         isLoading = false;
       });
     }
+  }
+  Future<void> _optionFetch() async {
+    setState(() {
+      _showFields = !_showFields;
+    });
+    await _fetchData();
   }
   Future<void> _handleUpload() async {
     final String url = 'http://api-alpha.square1server.com/api/searchrental';
@@ -249,7 +254,7 @@ class _MainPageState extends State<MainPage> {
       if (index == 1) { // Account button index
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => PropertyDetailsPage(property: {},)),
+          MaterialPageRoute(builder: (context) => MainPage1()),
         );
       }
       if (index == 0) { // Index 1 is for the 'SALES' item
@@ -662,70 +667,119 @@ class _MainPageState extends State<MainPage> {
                                 ),
                               );
                             },
-                            child: Card(
-                              color: Colors.white,
-                              shadowColor: Colors.black.withOpacity(0.5),
-                              elevation: 12.0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16.0),
-                              ),
-                              margin: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-                              child: Padding(
-                                padding: EdgeInsets.all(15.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      property['propertyname'],
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    SizedBox(height: 10),
-                                    Text(
-                                      property['propertyheadline'],
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    SizedBox(height: 10),
-                                    property['imgPreview'] != null
-                                        ? Image.network(property['imgPreview'])
-                                        : Container(),
-                                SizedBox(height: 10),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
+                            child: Padding(
+                              padding: EdgeInsets.only(left: 5.0, right: 5.0), // Add padding to the left and right
+                              child: Container(
+                                margin: EdgeInsets.symmetric(vertical: 15), // Remove horizontal margin as padding handles it
+                                width: MediaQuery.of(context).size.width, // Set to full width minus padding
+                                child: Card(
+                                  color: Colors.white,
+                                  shadowColor: Colors.black.withOpacity(0.5),
+                                  elevation: 12.0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16.0),
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsets.all(15.0),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text('${property['city']}', style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold, fontSize: 18),
+                                        Text(
+                                          property['propertyname'],
+                                          style: TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
-                                        ]
-                                    ),
-                                        Row(
-                                          children: [
-                                            Text(
-                                          '${property['bedroom']} Bed(s)', style: TextStyle(color: Colors.black, fontWeight: FontWeight.normal, fontSize: 15),
+                                        SizedBox(height: 10),
+                                        Text(
+                                          property['propertyheadline'],
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                          ),
                                         ),
-                                        SizedBox(width: 3),
-                                        Text('|', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18),
-                                        ),
-                                        SizedBox(width: 8.0),
-                                        Text('${property['bathroom']} Bath(s)', style: TextStyle(color: Colors.black, fontWeight: FontWeight.normal, fontSize: 15),
-                                        ),
-                                        SizedBox(width: 3),
-                                        Text('|', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18),
-                                        ),
-                                        SizedBox(width: 8.0),
-                                        Text('${property['sleepupto']} Sleep(s)', style: TextStyle(color: Colors.black, fontWeight: FontWeight.normal, fontSize: 15),
-                                        ),
-                                            ],
+                                        SizedBox(height: 10),
+                                        Padding(
+                                          padding: EdgeInsets.only(
+                                              left: 10.0,   // Padding on the left
+                                              right: 10.0,  // Padding on the right
+                                              top: 15.0,    // Padding on the top
+                                              bottom: 15.0  // Padding on the bottom
+                                          ),
+                                          child: property['imgPreview'] != null
+                                              ? Image.network(property['imgPreview'])
+                                              : Container(),
                                         ),
 
-                                    ],
-                                   ),
-                                  ],
+                                        SizedBox(height: 10),
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  '${property['city']}',
+                                                  style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 18,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  '${property['bedroom']} Bed(s)',
+                                                  style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontWeight: FontWeight.normal,
+                                                    fontSize: 15,
+                                                  ),
+                                                ),
+                                                SizedBox(width: 3),
+                                                Text(
+                                                  '|',
+                                                  style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 18,
+                                                  ),
+                                                ),
+                                                SizedBox(width: 8.0),
+                                                Text(
+                                                  '${property['bathroom']} Bath(s)',
+                                                  style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontWeight: FontWeight.normal,
+                                                    fontSize: 15,
+                                                  ),
+                                                ),
+                                                SizedBox(width: 3),
+                                                Text(
+                                                  '|',
+                                                  style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 18,
+                                                  ),
+                                                ),
+                                                SizedBox(width: 8.0),
+                                                Text(
+                                                  '${property['sleepupto']} Sleep(s)',
+                                                  style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontWeight: FontWeight.normal,
+                                                    fontSize: 15,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
@@ -760,7 +814,7 @@ class _MainPageState extends State<MainPage> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.beach_access),
-            label: 'RENTALS',
+            label: 'ALL RENTALS',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.public),
@@ -849,5 +903,3 @@ class PaginationButton extends StatelessWidget {
     );
   }
 }
-
-
